@@ -1,6 +1,6 @@
 import math
 
-class Reflector(): 
+class Ray(): 
     def __init__(self, start_coords, end_coords) -> None:
         self.x0, self.y0 = start_coords
         self.x1, self.y1 = end_coords
@@ -36,8 +36,8 @@ class Reflector():
             y1 = self.get_end_coords()[1]
             x3 = math.cos(angle)(x1-x0) - math.sin(angle)(y1-y0) + x1
             y3 = math.sin(angle)(x1-x0) + math.cos(angle)(y1-y0) + x1
-            self.x1_pos = x3
-            self.y1_pos = y3
+            self.x1 = x3
+            self.y1 = y3
         elif pivot_point == self.get_end_coords():
             x0 = pivot_point[0]
             y0 = pivot_point[1]
@@ -45,8 +45,8 @@ class Reflector():
             y1 = self.get_start_coords()[1]
             x3 = math.cos(angle)(x1-x0) - math.sin(angle)(y1-y0) + x1
             y3 = math.sin(angle)(x1-x0) + math.cos(angle)(y1-y0) + x1
-            self.x0_pos = x3
-            self.y0_pos = y3
+            self.x0 = x3
+            self.y0 = y3
         elif pivot_point == self.get_center_coords():
             pass 
         else:
