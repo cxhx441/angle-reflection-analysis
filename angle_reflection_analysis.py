@@ -1,3 +1,5 @@
+#TODO make it so that the objects have the correct dimensions, but the drawing scales
+
 from Receiver import Receiver
 from Source import Source
 from Reflector import Reflector
@@ -6,103 +8,51 @@ from PIL import Image, ImageDraw, ImageTk
 import tkinter
 from tkinter import ttk
 
+def get_draw_line_coords(obj):
+    x0, y0 = ref1.get_start_coords()
+    x1, y1 = ref1.get_end_coords()
+    y0 = room_size[1] - y0
+    y1 = room_size[1] - y1
+    return (x0, y0, x1, y1)
 
-class Editor(tkinter.Frame):
-    def __init__(self, parent):
-        tkinter.Frame.__init__(self, parent)
-        self.parent = parent
-        self.canvas_width, self.canvas_height = room_size
-        self.canvas = tkinter.Canvas(self, width=self.canvas_width , height=self.canvas_height, cursor="cross")
-        self.image = Image.new('RGB' , room_size, bckgrnd_clr)
-
-        self.image = Image.open('fake_image.png')
-        self.tk_image = ImageTk.PhotoImage(self.image)
-        self.canvas.config(scrollregion=(0, 0, self.canvas_width, self.canvas_height)) #giving scrollbars
-
-        self.canvas.create_image(0,0, anchor="nw", image=self.tk_image)
-        self.draw_shapes()
-
-        
-
-    def draw_shapes(self):
-        offset = 20
-        self.source = self.canvas.create_rectangle(x-offset, y-offset, x+offset, y+offset, fill='#00FF00', activeoutline='red')
-        self.receiver = self.canvas.create_rectangle(x-offset, y-offset, x+offset, y+offset, fill='#FF0000', activeoutline='red')
-        x0, y0 = tuple((x*scale for x in ref1.get_start_coords()))
-        x1, y1 = tuple((x*scale for x in ref1.get_end_coords()))
-        self.reflector = self.canvas.create_line(x0, y0, x1, y1, fill="purple", width=5)
+def get_draw_rect_coords(obj, diagonal_length):
+    x, y = obj.get_coords()
+    y = room_size[1] - y
+    return (x-diagonal_length, y-diagonal_length, x+diagonal_length, y+diagonal_length)
 
 scale = 10
 
-s1_pos = (10, 10)
-r1_pos = (140, 10)
-ref1_pos0 = (50, 25)
-ref1_pos1 = (100, 25)
-room_size = (150, 30)
+# x, y in whatever units
+room_size = (85, 45)
+s1_pos = (83, 9)
+r1_pos = (25, 14)
+ref1_pos0 = (55, 35)
+ref1_pos1 = (66, 32)
 
+# creating objects at scaling
+room_size = tuple(x*scale for x in room_size)
 s1 = Source(tuple(x*scale for x in s1_pos))
 r1 = Receiver(tuple(x*scale for x in r1_pos))
 ref1 = Reflector(tuple(x*scale for x in ref1_pos0), tuple(x*scale for x in ref1_pos1))
 
-# room_size = (250*scale, 125*scale)
-room_size = tuple(x*scale for x in room_size)
-bckgrnd_clr = (128, 128, 128)
-im = Image.new('RGB', room_size, bckgrnd_clr)
-draw = ImageDraw.Draw(im)
-draw.line((ref1.get_start_coords(), ref1.get_end_coords()), fill = 0)
-
-x, y = s1.get_coords()
-y = room_size[1]-y
-thick = 5*scale
-draw.rectangle((x - thick, y - thick, x + thick, y + thick), fill = (0,255,0), outline=(255, 255, 255))
-
-x, y = r1.get_coords()
-y = room_size[1]-y
-thick = 5*scale
-draw.rectangle((x - thick, y - thick, x + thick, y + thick), fill = (255,0,0), outline=(255, 255, 255))
-
-im.show()
-
-
+#tkinter
 top = tkinter.Tk()
-# mainApp.pack(side="top", fill="both", expand = True)
 
-canvas_width, canvas_height = room_size
-C = tkinter.Canvas(width=canvas_width , height=canvas_height, cursor="cross")
-image = Image.new('RGB' , room_size, bckgrnd_clr)
+room_offset = 40
+canvas_width, canvas_height = tuple((x+room_offset for x in room_size))
+canvas = tkinter.Canvas(width=canvas_width , height=canvas_height, cursor="cross")
+image = Image.new('RGB' , (canvas_width, canvas_height), (128, 128, 128))
 tk_image = ImageTk.PhotoImage(image)
 
-C.create_image(0,0, anchor="nw", image=tk_image)
+#room, canvas
+canvas.create_image(0,0, anchor="nw", image=tk_image)
+canvas.create_rectangle(0 + room_offset, 0 + room_offset, room_size[0], room_size[1])
 
-offset = 20
-x, y = s1.get_coords()
-y = room_size[1] - y
-source = C.create_rectangle(x-offset, y-offset, x+offset, y+offset, fill='#00FF00', activeoutline='red')
-x, y = r1.get_coords()
-y = room_size[1] - y
-receiver = C.create_rectangle(x-offset, y-offset, x+offset, y+offset, fill='#FF0000', activeoutline='red')
-x0, y0 = ref1.get_start_coords()
-x1, y1 = ref1.get_end_coords()
-y0 = room_size[1] - y0
-y1 = room_size[1] - y1
-reflector = C.create_line(x0, y0, x1, y1, fill="purple", width=5)
+#sources, receivers, reflectors
+diagonal_length = 15
+source = canvas.create_rectangle(get_draw_rect_coords(s1, diagonal_length), fill='#00FF00', activeoutline='red')
+receiver = canvas.create_rectangle(get_draw_rect_coords(r1, diagonal_length), fill='#FF0000', activeoutline='red')
+reflector = canvas.create_line(get_draw_line_coords(ref1), fill="purple", width=3, activefill="red")
 
-C.pack()
+canvas.pack()
 top.mainloop()
-
-# class Main_Application(tkinter.Frame):
-#     def __init__(self, parent):
-#             tkinter.Frame.__init__(self) # , parent
-#             self.parent = parent
-#             self.editor = Editor(self)
-
-# def main(): 
-#     root = tkinter.Tk()
-#     mainApp = Main_Application(root)
-#     # mainApp.pack(side="top", fill="both", expand = True)
-#     mainApp.pack()
-#     # root.geometry('+0+0')
-#     root.mainloop()
-
-# if __name__ == '__main__':
-#     main()
