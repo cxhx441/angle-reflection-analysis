@@ -94,6 +94,15 @@ class Reflector():
         new_end_coords = (self.get_end_coords()[0] + movement_coords[0], self.get_end_coords()[1] + movement_coords[1])
         self.set_start_coords(new_start_coords)
         self.set_end_coords(new_end_coords)
+
+
+    def move_vertical(self, y_amount): 
+        self.y0 += y_amount
+        self.y1 += y_amount
+    def move_horizontal(self, x_amount):
+        self.x0 += x_amount
+        self.x1 += x_amount
+    
     # def rotate(self, pivot_point, angle):
     #     if pivot_point == self.get_start_coords():
     #         x0 = pivot_point[0]
