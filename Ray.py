@@ -1,9 +1,11 @@
 import math
 
 class Ray():
+    rays = []
     def __init__(self, start_coords, end_coords) -> None:
         self.x0, self.y0 = start_coords
         self.x1, self.y1 = end_coords
+        Ray.rays.append(self)
 
     def get_start_coords(self):
         return (self.x0, self.y0)
@@ -97,8 +99,8 @@ class Ray():
         new_end_coords = (self.get_end_coords()[0] + movement_coords[0], self.get_end_coords()[1] + movement_coords[1])
         self.set_start_coords(new_start_coords)
         self.set_end_coords(new_end_coords)
-    
-    def move_vertical(self, y_amount): 
+
+    def move_vertical(self, y_amount):
         self.y0 += y_amount
         self.y1 += y_amount
     def move_horizontal(self, x_amount):

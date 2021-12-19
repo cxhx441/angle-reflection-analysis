@@ -1,9 +1,11 @@
 import math
 
 class Reflector():
+    reflectors = []
     def __init__(self, start_coords, end_coords) -> None:
         self.x0, self.y0 = start_coords
         self.x1, self.y1 = end_coords
+        Reflector.reflectors.append(self)
 
 
     def get_start_coords(self):
@@ -96,13 +98,13 @@ class Reflector():
         self.set_end_coords(new_end_coords)
 
 
-    def move_vertical(self, y_amount): 
+    def move_vertical(self, y_amount):
         self.y0 += y_amount
         self.y1 += y_amount
     def move_horizontal(self, x_amount):
         self.x0 += x_amount
         self.x1 += x_amount
-    
+
     # def rotate(self, pivot_point, angle):
     #     if pivot_point == self.get_start_coords():
     #         x0 = pivot_point[0]
