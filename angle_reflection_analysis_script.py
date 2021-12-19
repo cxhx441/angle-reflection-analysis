@@ -121,7 +121,7 @@ for source in Source.sources:
 canvas_size = tuple(x*scale for x in room_size)
 
 #tkinter
-top = tkinter.Tk()
+window = tkinter.Tk()
 
 canvas = tkinter.Canvas(width=canvas_size[0], height=canvas_size[1], cursor="cross")
 image = Image.new('RGB' , tuple(math.ceil(x) for x in canvas_size), (128, 128, 128))
@@ -146,4 +146,4 @@ for idx in range(0, len(Ray.rays), 6):
             new_var = draw_rays(Ray.rays[ray_num+idx], cur_color)
 
 canvas.pack()
-top.mainloop()
+window.mainloop()
