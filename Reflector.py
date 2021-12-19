@@ -2,6 +2,16 @@ import math
 
 class Reflector():
     reflectors = []
+    # def __init__(self, *args) -> None:
+    #     if isinstance(args, Reflector):
+    #         reflector = args
+    #         Reflector(reflector.get_start_coords(), reflector.get_end_coords())
+    #     else:
+    #         start_coords, end_coords = args
+    #         self.x0, self.y0 = start_coords
+    #         self.x1, self.y1 = end_coords
+    #         Reflector.reflectors.append(self)
+
     def __init__(self, start_coords, end_coords) -> None:
         self.x0, self.y0 = start_coords
         self.x1, self.y1 = end_coords
