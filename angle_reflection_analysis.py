@@ -28,11 +28,6 @@ def create_rays_2_reflector(source_obj, ref_obj):
     ray_2_end = Ray(source_obj.get_coords(), ref_obj.get_end_coords())
     return (ray_2_start, ray_2_center, ray_2_end)
 
-# def draw_s_to_reflector(rays):
-#     ray1 = canvas.create_line(get_draw_line_coords(rays_2_panel[0]), fill="yellow", width=3)
-#     ray2 = canvas.create_line(get_draw_line_coords(rays_2_panel[1]), fill="yellow", width=3)
-#     ray3 = canvas.create_line(get_draw_line_coords(rays_2_panel[2]), fill="yellow", width=3)
-
 def angle_between_2_lines(line0, line1):
     m0 = line0.get_slope()
     m1 = line1.get_slope()
@@ -66,50 +61,62 @@ def get_reflected_rays(source, reflector):
     reflect_ray_2_start = ray_temp.copy()
     reflect_ray_2_center = ray_temp.copy()
     reflect_ray_2_end = ray_temp.copy()
-    reflect_ray_2_start.set_end_coords(ref1.get_start_coords())
-    reflect_ray_2_center.set_end_coords(ref1.get_center_coords())
-    reflect_ray_2_end.set_end_coords(ref1.get_end_coords())
-
+    Ray.rays.remove(ray_temp)
+    reflect_ray_2_start.set_end_coords(reflector.get_start_coords())
+    reflect_ray_2_center.set_end_coords(reflector.get_center_coords())
+    reflect_ray_2_end.set_end_coords(reflector.get_end_coords())
     reflected_rays = (reflect_ray_2_start, reflect_ray_2_center, reflect_ray_2_end)
+
     for ref_ray in reflected_rays:
         ref_ray.extend(room_size)
 
-    reflect_ray_2_start.move(ref1.get_start_coords())
-    reflect_ray_2_center.move(ref1.get_center_coords())
-    reflect_ray_2_end.move(ref1.get_end_coords())
+    reflect_ray_2_start.move(reflector.get_start_coords())
+    reflect_ray_2_center.move(reflector.get_center_coords())
+    reflect_ray_2_end.move(reflector.get_end_coords())
     # that is new start point of reflected line.
 
-    rays = (ray_2_start, ray_2_center, ray_2_end, reflect_ray_2_start, reflect_ray_2_center, reflect_ray_2_end)
+    # return (ray_2_start, ray_2_center, ray_2_end, reflect_ray_2_start, reflect_ray_2_center, reflect_ray_2_end)
 
-    return (ray_2_start, ray_2_center, ray_2_end, reflect_ray_2_start, reflect_ray_2_center, reflect_ray_2_end)
-
-def draw_rays(rays):
-    #draw them
-    ray1_2_ref = canvas.create_line(get_draw_line_coords(rays[0]), fill="yellow", width=3)
-    ray2_2_ref = canvas.create_line(get_draw_line_coords(rays[1]), fill="yellow", width=3)
-    ray3_2_ref = canvas.create_line(get_draw_line_coords(rays[2]), fill="yellow", width=3)
-    ref_ray1_2_ref = canvas.create_line(get_draw_line_coords(rays[3]), fill="yellow", width=2)
-    ref_ray2_2_ref = canvas.create_line(get_draw_line_coords(rays[4]), fill="yellow", width=2)
-    ref_ray3_2_ref = canvas.create_line(get_draw_line_coords(rays[5]), fill="yellow", width=2)
-
-    return (ray1_2_ref, ray2_2_ref, ray3_2_ref, ref_ray1_2_ref, ref_ray2_2_ref, ref_ray3_2_ref)
+def draw_rays(ray, ray_color):
+    canvas.create_line(get_draw_line_coords(ray), fill=ray_color, width=3)
 
 scale = 10
 
-room_size = (85, 43)
-# room_size = (160, 43) # TODO delete this
-s1_pos = (84.5, 8.75)
-r1_pos = (32, 11)
-ref1_pos0 = (66, 31.83)
-ref1_pos1 = (55, 35.83)
+room_size = (75.989, 45.38)
+s1_pos = (74.007, 6.773)
+r1_pos = (5.102, 20.266)
+r2_pos = (10.824, 17.093)
+r3_pos = (16.574, 14.468)
+r4_pos = (22.407, 11.926)
+r5_pos = (28.785,9.885)
+r6_pos = (31.838, 8.231)
+ref1_pos0 = (27.511, 34.238)
+ref1_pos1 = (15.604, 33.137)
+ref2_pos0 = (59.351, 31.253)
+ref2_pos1 = (48.198,35.313)
+ref3_pos0 = (73.362, 25.586)
+ref3_pos1 = (62.188, 29.653)
 
 # get_reflector_to_edge
 
 s1 = Source(s1_pos)
 r1 = Receiver(r1_pos)
+r2 = Receiver(r2_pos)
+r3 = Receiver(r3_pos)
+r4 = Receiver(r4_pos)
+r5 = Receiver(r5_pos)
+r6 = Receiver(r6_pos)
 ref1 = Reflector(ref1_pos0, ref1_pos1)
-ref1.rotate(pivot=ref1.get_center_coords(), angle=11*math.pi/180)
-rays1 = get_reflected_rays(s1, ref1)
+ref2 = Reflector(ref2_pos0, ref2_pos1)
+ref3 = Reflector(ref3_pos0, ref3_pos1)
+# ref3.rotate(pivot=ref3.get_center_coords(), angle=-5*math.pi/180)
+# ref2.rotate(pivot=ref2.get_start_coords(), angle=6*math.pi/180)
+# ref1.rotate(pivot=ref1.get_start_coords(), angle=6*math.pi/180)
+# ref1.move_vertical(10)
+
+for source in Source.sources:
+    for reflector in Reflector.reflectors:
+        get_reflected_rays(source, reflector)
 
 canvas_size = tuple(x*scale for x in room_size)
 
@@ -117,16 +124,26 @@ canvas_size = tuple(x*scale for x in room_size)
 top = tkinter.Tk()
 
 canvas = tkinter.Canvas(width=canvas_size[0], height=canvas_size[1], cursor="cross")
-image = Image.new('RGB' , canvas_size, (128, 128, 128))
+image = Image.new('RGB' , tuple(math.ceil(x) for x in canvas_size), (128, 128, 128))
 tk_image = ImageTk.PhotoImage(image)
 
 canvas.create_image(0,0, anchor="nw", image=tk_image)
 
 diagonal_len = 20
-source = canvas.create_rectangle(get_draw_rect_coords(s1, diagonal_len), fill='#00FF00', activeoutline='red')
-receiver = canvas.create_rectangle(get_draw_rect_coords(r1, diagonal_len), fill='#FF0000', activeoutline='red')
-reflector = canvas.create_line(get_draw_line_coords(ref1), fill="purple", width=5, activefill = 'red')
-rays = draw_rays(rays1)
+for source in Source.sources:
+    canvas.create_rectangle(get_draw_rect_coords(source, diagonal_len), fill='#00FF00', activeoutline='red')
+for receiver in Receiver.receivers:
+    canvas.create_rectangle(get_draw_rect_coords(receiver, diagonal_len), fill='#FF0000', activeoutline='red')
+for reflector in Reflector.reflectors:
+    canvas.create_line(get_draw_line_coords(reflector), fill="purple", width=5, activefill = 'red')
+
+color = []
+for idx in range(0, len(Ray.rays), 6):
+        if len(color) == 0:
+            color = ["yellow", "orange", "blue"]
+        cur_color = color.pop()
+        for ray_num in range(6):
+            new_var = draw_rays(Ray.rays[ray_num+idx], cur_color)
 
 canvas.pack()
 top.mainloop()
