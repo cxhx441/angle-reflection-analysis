@@ -85,9 +85,9 @@ def update_reflected_rays():
     Ray.rays.clear()
     for source in Source.sources:
         for reflector in Reflector.reflectors:
-            ray_2_start = Ray(source.get_coords(), reflector.get_start_coords())
-            ray_2_center = Ray(source.get_coords(), reflector.get_center_coords())
-            ray_2_end = Ray(source.get_coords(), reflector.get_end_coords())
+            Ray(source.get_coords(), reflector.get_start_coords())
+            Ray(source.get_coords(), reflector.get_center_coords())
+            Ray(source.get_coords(), reflector.get_end_coords())
 
             #reflector, reflecting rays
             #rotate 90 degrees around either coordinate
@@ -98,8 +98,7 @@ def update_reflected_rays():
             #extend to intersection of ref
             intersection = get_intersection_of_two_lines(reflector, ray_temp)
             ray_temp.set_end_coords(intersection)
-            #get length of this extenssion,OR JUST ROTATE?
-            # make end point twice as far away OR JUST ROTATE?
+            # rotate
             ray_temp.rotate(pivot=ray_temp.get_end_coords(), angle=math.pi)
             # get intersection of that new end point to the receiver and the reflection panel,
             reflect_ray_2_start = ray_temp.copy()
@@ -111,12 +110,11 @@ def update_reflected_rays():
             reflect_ray_2_end.set_end_coords(reflector.get_end_coords())
             reflected_rays = (reflect_ray_2_start, reflect_ray_2_center, reflect_ray_2_end)
 
-            for ref_ray in reflected_rays:
-                ref_ray.extend(room_size)
-
             reflect_ray_2_start.move(reflector.get_start_coords())
             reflect_ray_2_center.move(reflector.get_center_coords())
             reflect_ray_2_end.move(reflector.get_end_coords())
+            for ref_ray in reflected_rays:
+                ref_ray.extend(room_size)
             # that is new start point of reflected line.
 
             # return (ray_2_start, ray_2_center, ray_2_end, reflect_ray_2_start, reflect_ray_2_center, reflect_ray_2_end)
@@ -134,7 +132,6 @@ def draw_rays():
             this_ray = Ray.rays[ray_num+idx]
             this_id = canvas.create_line(get_draw_line_coords(this_ray), fill=cur_color, width=3)
             drawing_to_internal_data_mapping[this_id] = this_ray
-        # draw_rays(Ray.rays[ray_num+idx], cur_color)
 
 def draw_all_room_entities():
     update_reflected_rays()
@@ -306,7 +303,7 @@ drawing_to_internal_data_mapping = {}
 current_item = []
 scale = 10
 room_size = (75.989, 45.38)
-room_size = (120, 90) # TODO delete
+# room_size = (120, 90) # TODO delete
 scale_and_room_size_list_for_saving = [scale, room_size]
 s1_pos = (74.007, 45.38-6.773)
 r1_pos = (5.102, 45.38-20.266)
@@ -350,44 +347,46 @@ window.title("this is the title2222")
 
 canvas = tkinter.Canvas(width=canvas_size[0], height=canvas_size[1], cursor="cross")
 
-canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], outline='black')
+canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], fill='gray')
 
 window.rowconfigure(0, minsize=800, weight=1)
 window.columnconfigure(1, minsize=800, weight=1)
 fr_buttons = tkinter.Frame(window)
 btn_open = tkinter.Button(fr_buttons, text='Open', command=open_file)
 btn_save = tkinter.Button(fr_buttons, text='Save As...', command=save_file)
+spacer1 = tkinter.Label(fr_buttons, text='')
 btn_draw_source = tkinter.Button(fr_buttons, text='Draw Source')
 btn_draw_reflector = tkinter.Button(fr_buttons, text='Draw Reflector')
 btn_draw_receiver = tkinter.Button(fr_buttons, text='Draw Receiver')
+spacer2 = tkinter.Label(fr_buttons, text='')
 btn_move_active_obj_up = tkinter.Button(fr_buttons, text='Move Up', command=on_move_up_button)
 btn_move_active_obj_down = tkinter.Button(fr_buttons, text='Move Down', command=on_move_down_button)
 btn_move_active_obj_right = tkinter.Button(fr_buttons, text='Move Right', command=on_move_right_button)
 btn_move_active_obj_left = tkinter.Button(fr_buttons, text='Move Left', command=on_move_left_button)
-btn_rotate_active_obj_clockwise = tkinter.Button(fr_buttons, text='Rotate Clockwise', command=on_rotate_clockwise_button)
-btn_rotate_active_obj_counterclockwise = tkinter.Button(fr_buttons, text='Rotate Counterclockwise', command=on_rotate_counterclockwise_button)
+spacer3 = tkinter.Label(fr_buttons, text='')
 btn_l = tkinter.Button(fr_buttons, text='L', command=on_lcr_choice_LEFT)
 btn_c = tkinter.Button(fr_buttons, text='C', command=on_lcr_choice_CENTER)
 btn_r = tkinter.Button(fr_buttons, text='R', command=on_lcr_choice_RIGHT)
-spacer1 = tkinter.Label(fr_buttons, text='')
-spacer2 = tkinter.Label(fr_buttons, text='')
+btn_rotate_active_obj_clockwise = tkinter.Button(fr_buttons, text='Rotate Clockwise', command=on_rotate_clockwise_button)
+btn_rotate_active_obj_counterclockwise = tkinter.Button(fr_buttons, text='Rotate Counterclockwise', command=on_rotate_counterclockwise_button)
 
 btn_open.grid(row=0, column=0, sticky="ew", padx=5)
 btn_save.grid(row=1, column=0, sticky="ew", padx=5)
-btn_draw_source.grid(row=2, column=0, sticky="ew", padx=5)
-btn_draw_reflector.grid(row=3, column=0, sticky="ew", padx=5)
-btn_draw_receiver.grid(row=4, column=0, sticky="ew", padx=5)
-spacer1.grid(row=5, column=0, sticky='ew', padx=5)
-btn_move_active_obj_up.grid(row=6, column=0, sticky='ew', padx=5)
-btn_move_active_obj_down.grid(row=7, column=0, sticky='ew', padx=5)
-btn_move_active_obj_right.grid(row=8, column=0, sticky='ew', padx=5)
-btn_move_active_obj_left.grid(row=9, column=0, sticky='ew', padx=5)
-spacer2.grid(row=10, column=0, sticky='ew', padx=5)
-btn_l.grid(row=11, column=0, sticky='ew', padx=5)
-btn_c.grid(row=12, column=0, sticky='ew', padx=5)
-btn_r.grid(row=13, column=0, sticky='ew', padx=5)
-btn_rotate_active_obj_clockwise.grid(row=14, column=0, sticky='ew', padx=5)
-btn_rotate_active_obj_counterclockwise.grid(row=15, column=0, sticky='ew', padx=5)
+spacer1.grid(row=2, column=0, sticky='ew', padx=5)
+btn_draw_source.grid(row=3, column=0, sticky="ew", padx=5)
+btn_draw_reflector.grid(row=4, column=0, sticky="ew", padx=5)
+btn_draw_receiver.grid(row=5, column=0, sticky="ew", padx=5)
+spacer2.grid(row=6, column=0, sticky='ew', padx=5)
+btn_move_active_obj_up.grid(row=7, column=0, sticky='ew', padx=5)
+btn_move_active_obj_down.grid(row=8, column=0, sticky='ew', padx=5)
+btn_move_active_obj_right.grid(row=9, column=0, sticky='ew', padx=5)
+btn_move_active_obj_left.grid(row=10, column=0, sticky='ew', padx=5)
+spacer3.grid(row=11, column=0, sticky='ew', padx=5)
+btn_l.grid(row=12, column=0, sticky='ew', padx=5)
+btn_c.grid(row=13, column=0, sticky='ew', padx=5)
+btn_r.grid(row=14, column=0, sticky='ew', padx=5)
+btn_rotate_active_obj_clockwise.grid(row=15, column=0, sticky='ew', padx=5)
+btn_rotate_active_obj_counterclockwise.grid(row=16, column=0, sticky='ew', padx=5)
 fr_buttons.grid(row=0, column=0, sticky='ns')
 canvas.grid(row=0, column=1, sticky='nsew')
 canvas.bind('<Button-1>', on_click)

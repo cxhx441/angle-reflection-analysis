@@ -20,7 +20,6 @@ class Ray():
         (self.x1, self.y1) = new_end
 
     def get_reflected_ray(self, ray_obj, angle):
-        ###
         return Ray(self.get_start_coords(), self.get_end_coords())
 
     def get_delta_x(self):
@@ -112,59 +111,28 @@ class Ray():
         x1, y1 = self.get_end_coords()
         # going left
         if x0 > x1:
-            x = 0
-            m, b = self.get_slope_intercept_form()
+            x_towidth = 0
+            m_towidth, b_towidth = self.get_slope_intercept_form()
+            y_towidth = m_towidth*x_towidth + b_towidth
         # going right
         elif x0 < x1:
-            x = room_size[0]
-            m, b = self.get_slope_intercept_form()
+            x_towidth = room_size[0]
+            m_towidth, b_towidth = self.get_slope_intercept_form()
+            y_towidth = m_towidth*x_towidth + b_towidth
+        #going down
+        if y0 < y1:
+            y_toheight = room_size[1]
+            m_toheight, b_toheight = self.get_slope_intercept_form()
+            x_toheight = (y_toheight - b_toheight)/m_toheight
+        #going up
+        elif y0 > y1:
+            y_toheight = 0
+            m_toheight, b_toheight = self.get_slope_intercept_form()
+            x_toheight = (y_toheight - b_toheight)/m_toheight
 
-        y = m*x + b
-        self.set_end_coords((x, y))
-        # #going down,left
-        # if y0 > y1 and x0 > x1:
-        #     x = 0
-        #     m, b = self.get_slope_intercept_form()
-        #     y = m*x + b
-        # # going up,left
-        # elif y0 < y1 and x0 > x1:
-        #     x = 0
-        #     m, b = self.get_slope_intercept_form()
-        #     y = m*x + b
-
-        # # going up, right
-        # elif y0 < y1 and x0 < x1:
-        #     x = room_size[0]
-        #     m, b = self.get_slope_intercept_form()
-        #     y = m*x + b
-
-        # # going down, right
-        # elif y0 > y1 and x0 < x1:
-        #     x = room_size[0]
-        #     m, b = self.get_slope_intercept_form()
-        #     y = m*x + b
-
-    # def rotate(self, pivot_point, angle):
-    #     if pivot_point == self.get_start_coords():
-    #         x0 = pivot_point[0]
-    #         y0 = pivot_point[1]
-    #         x1 = self.get_end_coords()[0]
-    #         y1 = self.get_end_coords()[1]
-    #         x3 = math.cos(angle)*(x1-x0) - math.sin(angle)*(y1-y0) + x1
-    #         y3 = math.sin(angle)(x1-x0) + math.cos(angle)*(y1-y0) + x1
-    #         self.x1 = x3
-    #         self.y1 = y3
-    #     elif pivot_point == self.get_end_coords():
-    #         x0 = pivot_point[0]
-    #         y0 = pivot_point[1]
-    #         x1 = self.get_start_coords()[0]
-    #         y1 = self.get_start_coords()[1]
-    #         x3 = math.cos(angle)*(x1-x0) - math.sin(angle)*(y1-y0) + x1
-    #         y3 = math.sin(angle)*(x1-x0) + math.cos(angle)*(y1-y0) + x1
-    #         self.x0 = x3
-    #         self.y0 = y3
-    #     elif pivot_point == self.get_center_coords():
-    #         pass
-    #     else:
-    #         print("error")
-
+        len_toheight = ((y_toheight-y0)**2 + (x_toheight-x0)**2)**0.5
+        len_towidth = ((y_towidth-y0)**2 + (x_towidth-x0)**2)**0.5
+        if len_toheight < len_towidth:
+            self.set_end_coords((x_toheight, y_toheight))
+        else:
+            self.set_end_coords((x_towidth, y_towidth))
