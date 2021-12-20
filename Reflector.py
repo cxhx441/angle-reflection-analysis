@@ -2,21 +2,10 @@ import math
 
 class Reflector():
     reflectors = []
-    # def __init__(self, *args) -> None:
-    #     if isinstance(args, Reflector):
-    #         reflector = args
-    #         Reflector(reflector.get_start_coords(), reflector.get_end_coords())
-    #     else:
-    #         start_coords, end_coords = args
-    #         self.x0, self.y0 = start_coords
-    #         self.x1, self.y1 = end_coords
-    #         Reflector.reflectors.append(self)
-
     def __init__(self, start_coords, end_coords) -> None:
         self.x0, self.y0 = start_coords
         self.x1, self.y1 = end_coords
         Reflector.reflectors.append(self)
-
 
     def get_start_coords(self):
         return (self.x0, self.y0)
@@ -115,8 +104,17 @@ class Reflector():
         self.x0 += x_amount
         self.x1 += x_amount
 
+    def move_up(self, y):
+        self.move_vertical(-y)
+
     def move_down(self, y):
         self.move_vertical(y)
+
+    def move_right(self, x):
+        self.move_horizontal(x)
+
+    def move_left(self, x):
+        self.move_horizontal(-x)
     # def rotate(self, pivot_point, angle):
     #     if pivot_point == self.get_start_coords():
     #         x0 = pivot_point[0]

@@ -166,18 +166,79 @@ def on_click(event):
     print(current_item[0])
 
 def on_move_down_button():
-    y = 10
-    canvas.move(current_item[0], 0, y)
+    step = 1*scale
+    canvas.move(current_item[0], 0, abs(step))
     #move data
     cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
-    cur_int_data_el.move_down(y/scale)
-    #delete old ray drawings
-
+    cur_int_data_el.move_down(abs(step/scale))
     #redraw rays
     update_reflected_rays()
     draw_rays()
 
+def on_move_up_button():
+    step = 1*scale
+    canvas.move(current_item[0], 0, -abs(step))
+    #move data
+    cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
+    cur_int_data_el.move_up(abs(step/scale))
+    #redraw rays
+    update_reflected_rays()
+    draw_rays()
 
+def on_move_right_button():
+    step = 1*scale
+    canvas.move(current_item[0], abs(step), 0)
+    #move data
+    cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
+    cur_int_data_el.move_right(abs(step/scale))
+    #redraw rays
+    update_reflected_rays()
+    draw_rays()
+
+def on_move_left_button():
+    step = 1*scale
+    canvas.move(current_item[0], -abs(step), 0)
+    #move data
+    cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
+    cur_int_data_el.move_left(abs(step/scale))
+    #redraw rays
+    update_reflected_rays()
+    draw_rays()
+
+def on_lcr_choice_LEFT():
+    if len(lcr_flag) != 0:
+        lcr_flag.clear()
+    lcr_flag.append("left")
+
+def on_lcr_choice_CENTER():
+    if len(lcr_flag) != 0:
+        lcr_flag.clear()
+    lcr_flag.append("center")
+
+def on_lcr_choice_RIGHT():
+    if len(lcr_flag) != 0:
+        lcr_flag.clear()
+    lcr_flag.append("right")
+
+def on_rotate_clockwise_button():
+    cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
+    if not isinstance(cur_int_data_el, Reflector):
+        pass
+    step = 5 #degrees
+    if lcr_flag[0] == "left":
+        cur_int_data_el.rotate(pivot=cur_int_data_el.get_start_coords, angle=5 * math.pi/180)
+
+    elif lcr_flag[0] == "center":
+        cur_int_data_el.rotate(pivot=cur_int_data_el.get_center_coords, angle=5 * math.pi/180)
+
+    elif lcr_flag[0] == "right":
+        cur_int_data_el.rotate(pivot=cur_int_data_el.get_end_coords, angle=5 * math.pi/180)
+
+
+def on_rotate_counterclockwise_button():
+    pass
+
+lcr_flag = []
 drawing_to_internal_data_mapping = {}
 current_item = []
 scale = 10
@@ -225,9 +286,6 @@ window = tkinter.Tk()
 window.title("this is the title2222")
 
 canvas = tkinter.Canvas(width=canvas_size[0], height=canvas_size[1], cursor="cross")
-# image = Image.new('RGB' , tuple(math.ceil(x) for x in canvas_size), (128, 128, 128))
-# tk_image = ImageTk.PhotoImage(image)
-# canvas.create_image(0,0, anchor="nw", image=tk_image)
 
 canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], outline='black')
 
@@ -239,11 +297,18 @@ btn_save = tkinter.Button(fr_buttons, text='Save As...', command=save_file)
 btn_draw_source = tkinter.Button(fr_buttons, text='Draw Source')
 btn_draw_reflector = tkinter.Button(fr_buttons, text='Draw Reflector')
 btn_draw_receiver = tkinter.Button(fr_buttons, text='Draw Receiver')
-btn_move_active_obj_up = tkinter.Button(fr_buttons, text='Move Up')
+btn_move_active_obj_up = tkinter.Button(fr_buttons, text='Move Up', command=on_move_up_button)
 btn_move_active_obj_down = tkinter.Button(fr_buttons, text='Move Down', command=on_move_down_button)
-btn_move_active_obj_right = tkinter.Button(fr_buttons, text='Move Right')
-btn_move_active_obj_left = tkinter.Button(fr_buttons, text='Move Left')
+btn_move_active_obj_right = tkinter.Button(fr_buttons, text='Move Right', command=on_move_right_button)
+btn_move_active_obj_left = tkinter.Button(fr_buttons, text='Move Left', command=on_move_left_button)
+btn_rotate_active_obj_clockwise = tkinter.Button(fr_buttons, text='Rotate Clockwise', command=on_rotate_clockwise_button)
+btn_rotate_active_obj_counterclockwise = tkinter.Button(fr_buttons, text='Rotate Counterclockwise', command=on_rotate_counterclockwise_button)
+btn_l = tkinter.Button(fr_buttons, text='L', command=on_lcr_choice_LEFT)
+btn_c = tkinter.Button(fr_buttons, text='C', command=on_lcr_choice_CENTER)
+btn_r = tkinter.Button(fr_buttons, text='R', command=on_lcr_choice_RIGHT)
 spacer1 = tkinter.Label(fr_buttons, text='')
+spacer2 = tkinter.Label(fr_buttons, text='')
+
 btn_open.grid(row=0, column=0, sticky="ew", padx=5)
 btn_save.grid(row=1, column=0, sticky="ew", padx=5)
 btn_draw_source.grid(row=2, column=0, sticky="ew", padx=5)
@@ -253,7 +318,13 @@ spacer1.grid(row=5, column=0, sticky='ew', padx=5)
 btn_move_active_obj_up.grid(row=6, column=0, sticky='ew', padx=5)
 btn_move_active_obj_down.grid(row=7, column=0, sticky='ew', padx=5)
 btn_move_active_obj_right.grid(row=8, column=0, sticky='ew', padx=5)
-btn_move_active_obj_left .grid(row=9, column=0, sticky='ew', padx=5)
+btn_move_active_obj_left.grid(row=9, column=0, sticky='ew', padx=5)
+spacer2.grid(row=10, column=0, sticky='ew', padx=5)
+btn_l.grid(row=11, column=0, sticky='ew', padx=5)
+btn_c.grid(row=12, column=0, sticky='ew', padx=5)
+btn_r.grid(row=13, column=0, sticky='ew', padx=5)
+btn_rotate_active_obj_clockwise.grid(row=14, column=0, sticky='ew', padx=5)
+btn_rotate_active_obj_counterclockwise.grid(row=15, column=0, sticky='ew', padx=5)
 fr_buttons.grid(row=0, column=0, sticky='ns')
 canvas.grid(row=0, column=1, sticky='nsew')
 canvas.bind('<Button-1>', on_click)
