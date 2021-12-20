@@ -206,7 +206,7 @@ def on_click(event):
     print(current_item[0])
 
 def on_move_down_button():
-    step = 1*scale
+    step = move_and_rotate_steps[0]*scale
     canvas.move(current_item[0], 0, abs(step))
     #move data
     cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
@@ -216,7 +216,7 @@ def on_move_down_button():
     draw_rays()
 
 def on_move_up_button():
-    step = 1*scale
+    step = move_and_rotate_steps[0]*scale
     canvas.move(current_item[0], 0, -abs(step))
     #move data
     cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
@@ -226,7 +226,7 @@ def on_move_up_button():
     draw_rays()
 
 def on_move_right_button():
-    step = 1*scale
+    step = move_and_rotate_steps[0]*scale
     canvas.move(current_item[0], abs(step), 0)
     #move data
     cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
@@ -236,7 +236,7 @@ def on_move_right_button():
     draw_rays()
 
 def on_move_left_button():
-    step = 1*scale
+    step = move_and_rotate_steps[0]*scale
     canvas.move(current_item[0], -abs(step), 0)
     #move data
     cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
@@ -270,7 +270,7 @@ def on_rotate_clockwise_button():
     cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
     if not isinstance(cur_int_data_el, Reflector):
         return
-    step = 5 #degrees
+    step = move_and_rotate_steps[1] #degrees
     step *= math.pi/180 #radians
     if lcr_flag[0] == "left":
         cur_int_data_el.rotate(pivot=cur_int_data_el.get_start_coords(), angle=step)
@@ -286,7 +286,7 @@ def on_rotate_counterclockwise_button():
     cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
     if not isinstance(cur_int_data_el, Reflector):
         return
-    step = -5 #degrees
+    step = -move_and_rotate_steps[1] #degrees
     step *= math.pi/180 #radians
     if lcr_flag[0] == "left":
         cur_int_data_el.rotate(pivot=cur_int_data_el.get_start_coords(), angle=step)
@@ -298,6 +298,16 @@ def on_rotate_counterclockwise_button():
     update_reflected_rays()
     draw_rays()
 
+def update_move_step():
+    move_and_rotate_steps[0] = int(entry_box.get())
+
+    step_lable.configure(text=f'{move_and_rotate_steps[0]} (ft), {move_and_rotate_steps[1]} (deg)')
+
+def update_rotate_step():
+    move_and_rotate_steps[1] = int(entry_box.get())
+    step_lable.configure(text=f'{move_and_rotate_steps[0]} (ft), {move_and_rotate_steps[1]} (deg)')
+
+move_and_rotate_steps = [1, 1]
 lcr_flag = []
 drawing_to_internal_data_mapping = {}
 current_item = []
@@ -369,6 +379,10 @@ btn_c = tkinter.Button(fr_buttons, text='C', command=on_lcr_choice_CENTER)
 btn_r = tkinter.Button(fr_buttons, text='R', command=on_lcr_choice_RIGHT)
 btn_rotate_active_obj_clockwise = tkinter.Button(fr_buttons, text='Rotate Clockwise', command=on_rotate_clockwise_button)
 btn_rotate_active_obj_counterclockwise = tkinter.Button(fr_buttons, text='Rotate Counterclockwise', command=on_rotate_counterclockwise_button)
+btn_updt_move_step = tkinter.Button(fr_buttons, text = "Update Move Step (ft)", command=update_move_step)
+btn_updt_angle_step = tkinter.Button(fr_buttons, text = "Update Angle Step (deg)", command=update_rotate_step)
+entry_box = tkinter.Entry(fr_buttons, textvariable=5)
+step_lable = tkinter.Label(fr_buttons, text=f"{move_and_rotate_steps[0]} (ft), {move_and_rotate_steps[1]} (deg)")
 
 btn_open.grid(row=0, column=0, sticky="ew", padx=5)
 btn_save.grid(row=1, column=0, sticky="ew", padx=5)
@@ -387,6 +401,11 @@ btn_c.grid(row=13, column=0, sticky='ew', padx=5)
 btn_r.grid(row=14, column=0, sticky='ew', padx=5)
 btn_rotate_active_obj_clockwise.grid(row=15, column=0, sticky='ew', padx=5)
 btn_rotate_active_obj_counterclockwise.grid(row=16, column=0, sticky='ew', padx=5)
+btn_updt_move_step.grid(row=17, column=0, sticky='ew', padx=5)
+btn_updt_angle_step.grid(row=18, column=0, sticky='ew', padx=5)
+entry_box.grid(row=19, column=0, sticky='ew', padx=5)
+step_lable.grid(row=20, column=0, sticky='ew', padx=5)
+
 fr_buttons.grid(row=0, column=0, sticky='ns')
 canvas.grid(row=0, column=1, sticky='nsew')
 canvas.bind('<Button-1>', on_click)
