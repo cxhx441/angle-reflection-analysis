@@ -17,3 +17,6 @@ class Source():
 
     def get_coords(self):
         return self.coords
+
+    def move_down(self, y):
+        self.y_pos += y

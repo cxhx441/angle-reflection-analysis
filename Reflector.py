@@ -115,6 +115,8 @@ class Reflector():
         self.x0 += x_amount
         self.x1 += x_amount
 
+    def move_down(self, y):
+        self.move_vertical(y)
     # def rotate(self, pivot_point, angle):
     #     if pivot_point == self.get_start_coords():
     #         x0 = pivot_point[0]

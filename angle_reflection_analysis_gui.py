@@ -1,3 +1,5 @@
+from os import remove
+from tkinter.constants import ACTIVE, COMMAND
 from Receiver import Receiver
 from Source import Source
 from Reflector import Reflector
@@ -36,7 +38,8 @@ def get_intersection_of_two_lines(line0, line1):
     x_int = (b1 - b0)/(m0-m1)
     return (x_int, m0*x_int + b0)
 
-def get_reflected_rays():
+def update_reflected_rays():
+    Ray.rays.clear()
     for source in Source.sources:
         for reflector in Reflector.reflectors:
             ray_2_start = Ray(source.get_coords(), reflector.get_start_coords())
@@ -75,26 +78,41 @@ def get_reflected_rays():
 
             # return (ray_2_start, ray_2_center, ray_2_end, reflect_ray_2_start, reflect_ray_2_center, reflect_ray_2_end)
 
-def draw_rays(ray, ray_color):
-    canvas.create_line(get_draw_line_coords(ray), fill=ray_color, width=3)
-
-def draw_all_room_entities():
-    get_reflected_rays()
-    diagonal_len = 20
-    for source in Source.sources:
-        canvas.create_rectangle(get_draw_rect_coords(source, diagonal_len), fill='#00FF00', activeoutline='red')
-    for receiver in Receiver.receivers:
-        canvas.create_rectangle(get_draw_rect_coords(receiver, diagonal_len), fill='#FF0000', activeoutline='red')
-    for reflector in Reflector.reflectors:
-        canvas.create_line(get_draw_line_coords(reflector), fill="purple", width=5, activefill = 'red')
-
+def draw_rays():
+    for key in drawing_to_internal_data_mapping:
+        if isinstance(drawing_to_internal_data_mapping[key], Ray):
+            canvas.delete(key)
     color = []
     for idx in range(0, len(Ray.rays), 6):
-            if len(color) == 0:
-                color = ["yellow", "orange", "blue"]
-            cur_color = color.pop()
-            for ray_num in range(6):
-                draw_rays(Ray.rays[ray_num+idx], cur_color)
+        if len(color) == 0:
+            color = ["yellow", "orange", "blue"]
+        cur_color = color.pop()
+        for ray_num in range(6):
+            this_ray = Ray.rays[ray_num+idx]
+            this_id = canvas.create_line(get_draw_line_coords(this_ray), fill=cur_color, width=3)
+            drawing_to_internal_data_mapping[this_id] = this_ray
+        # draw_rays(Ray.rays[ray_num+idx], cur_color)
+
+def draw_all_room_entities():
+    update_reflected_rays()
+    diagonal_len = 20
+    for source in Source.sources:
+        this_id = canvas.create_rectangle(get_draw_rect_coords(source, diagonal_len), fill='#00FF00', activeoutline='red')
+        drawing_to_internal_data_mapping[this_id] = source
+    for receiver in Receiver.receivers:
+        this_id = canvas.create_rectangle(get_draw_rect_coords(receiver, diagonal_len), fill='#FF0000', activeoutline='red')
+        drawing_to_internal_data_mapping[this_id] = receiver
+    for reflector in Reflector.reflectors:
+        this_id = canvas.create_line(get_draw_line_coords(reflector), fill="purple", width=5, activefill = 'red')
+        drawing_to_internal_data_mapping[this_id] = reflector
+
+    # color = []
+    # for idx in range(0, len(Ray.rays), 6):
+    #         if len(color) == 0:
+    #             color = ["yellow", "orange", "blue"]
+    #         cur_color = color.pop()
+    #         for ray_num in range(6):
+        draw_rays()
 
 def save_file():
     filepath = asksaveasfilename(defaultextension="txt", filetypes=[("Text Files", "*.txt")])
@@ -141,7 +159,27 @@ def load_json(data):
     for receiver in data['receivers']:
         Receiver.receivers.append(receiver)
 
+def on_click(event):
+    if len(current_item) != 0:
+        current_item.pop()
+    current_item.append(event.widget.find_withtag("current"))
+    print(current_item[0])
 
+def on_move_down_button():
+    y = 10
+    canvas.move(current_item[0], 0, y)
+    #move data
+    cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
+    cur_int_data_el.move_down(y/scale)
+    #delete old ray drawings
+
+    #redraw rays
+    update_reflected_rays()
+    draw_rays()
+
+
+drawing_to_internal_data_mapping = {}
+current_item = []
 scale = 10
 room_size = (75.989, 45.38)
 room_size = (120, 90) # TODO delete
@@ -191,7 +229,7 @@ canvas = tkinter.Canvas(width=canvas_size[0], height=canvas_size[1], cursor="cro
 # tk_image = ImageTk.PhotoImage(image)
 # canvas.create_image(0,0, anchor="nw", image=tk_image)
 
-canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], fill='gray')
+canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], outline='black')
 
 window.rowconfigure(0, minsize=800, weight=1)
 window.columnconfigure(1, minsize=800, weight=1)
@@ -202,7 +240,7 @@ btn_draw_source = tkinter.Button(fr_buttons, text='Draw Source')
 btn_draw_reflector = tkinter.Button(fr_buttons, text='Draw Reflector')
 btn_draw_receiver = tkinter.Button(fr_buttons, text='Draw Receiver')
 btn_move_active_obj_up = tkinter.Button(fr_buttons, text='Move Up')
-btn_move_active_obj_down = tkinter.Button(fr_buttons, text='Move Down')
+btn_move_active_obj_down = tkinter.Button(fr_buttons, text='Move Down', command=on_move_down_button)
 btn_move_active_obj_right = tkinter.Button(fr_buttons, text='Move Right')
 btn_move_active_obj_left = tkinter.Button(fr_buttons, text='Move Left')
 spacer1 = tkinter.Label(fr_buttons, text='')
@@ -218,6 +256,7 @@ btn_move_active_obj_right.grid(row=8, column=0, sticky='ew', padx=5)
 btn_move_active_obj_left .grid(row=9, column=0, sticky='ew', padx=5)
 fr_buttons.grid(row=0, column=0, sticky='ns')
 canvas.grid(row=0, column=1, sticky='nsew')
+canvas.bind('<Button-1>', on_click)
 
 draw_all_room_entities()
 window.mainloop()

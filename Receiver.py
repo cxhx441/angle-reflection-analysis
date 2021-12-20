@@ -15,5 +15,9 @@ class Receiver():
         self.x_pos, self.y_pos = coords
         self.coords = coords
         Receiver.receivers.append(self)
+
     def get_coords(self):
         return self.coords
+
+    def move_down(self, y):
+        self.y_pos += y
