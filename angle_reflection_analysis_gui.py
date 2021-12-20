@@ -16,6 +16,49 @@ def get_draw_line_coords(obj):
     x0, y0, x1, y1 = (el*scale for el in (x0, y0, x1, y1))
     return (x0, y0, x1, y1)
 
+def rotate_tkinter_line(current_coords, pivot=None, angle=None):
+    if angle == None:
+        angle = math.pi/2
+    new_x0, new_y0, new_x1, new_y1 = current_coords
+    new_x_mid, new_y_mid = ((new_x0 + new_x1)/2, (new_y0 + new_y1)/2)
+    if pivot == (new_x0, new_y0) or pivot == None:
+        trans_x0 = new_x0 - new_x0
+        trans_x1 = new_x1 - new_x0
+        trans_y0 = new_y0 - new_y0
+        trans_y1 = new_y1 - new_y0
+    elif pivot == (new_x1, new_y1):
+        trans_x0 = new_x0 - new_x1
+        trans_x1 = new_x1 - new_x1
+        trans_y0 = new_y0 - new_y1
+        trans_y1 = new_y1 - new_y1
+    elif pivot == (new_x_mid, new_y_mid):
+        trans_x0 = new_x0 - new_x_mid
+        trans_x1 = new_x1 - new_x_mid
+        trans_y0 = new_y0 - new_y_mid
+        trans_y1 = new_y1 - new_y_mid
+
+    x0 = trans_x0*math.cos(angle) - trans_y0*math.sin(angle)
+    x1 = trans_x1*math.cos(angle) - trans_y1*math.sin(angle)
+    y0 = trans_x0*math.sin(angle) + trans_y0*math.cos(angle)
+    y1 = trans_x1*math.sin(angle) + trans_y1*math.cos(angle)
+
+    if pivot == (new_x0, new_y0) or pivot == None:
+        x0 += new_x0
+        x1 += new_x0
+        y0 += new_y0
+        y1 += new_y0
+    elif pivot == (new_x1, new_y1):
+        x0 += new_x1
+        x1 += new_x1
+        y0 += new_y1
+        y1 += new_y1
+    elif pivot == (new_x_mid, new_y_mid):
+        x0 += new_x_mid
+        x1 += new_x_mid
+        y0 += new_y_mid
+        y1 += new_y_mid
+    return (x0, x1, y0, y1)
+
 def get_draw_rect_coords(obj, diagonal_len):
     x, y = obj.get_coords()
     x, y = (el*scale for el in (x, y))
@@ -220,23 +263,43 @@ def on_lcr_choice_RIGHT():
         lcr_flag.clear()
     lcr_flag.append("right")
 
+def update_drawing_reflector_after_rotation(internal_item):
+    start_coords = internal_item.get_start_coords()
+    end_coords = internal_item.get_end_coords()
+    new_drawing_coords = (start_coords[0]*scale, start_coords[1]*scale, end_coords[0]*scale, end_coords[1]*scale)
+    canvas.coords(current_item[0], new_drawing_coords)
+
 def on_rotate_clockwise_button():
     cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
     if not isinstance(cur_int_data_el, Reflector):
-        pass
+        return
     step = 5 #degrees
+    step *= math.pi/180 #radians
     if lcr_flag[0] == "left":
-        cur_int_data_el.rotate(pivot=cur_int_data_el.get_start_coords, angle=5 * math.pi/180)
-
+        cur_int_data_el.rotate(pivot=cur_int_data_el.get_start_coords(), angle=step)
     elif lcr_flag[0] == "center":
-        cur_int_data_el.rotate(pivot=cur_int_data_el.get_center_coords, angle=5 * math.pi/180)
-
+        cur_int_data_el.rotate(pivot=cur_int_data_el.get_center_coords(), angle=step)
     elif lcr_flag[0] == "right":
-        cur_int_data_el.rotate(pivot=cur_int_data_el.get_end_coords, angle=5 * math.pi/180)
-
+        cur_int_data_el.rotate(pivot=cur_int_data_el.get_end_coords(), angle=step)
+    update_drawing_reflector_after_rotation(cur_int_data_el)
+    update_reflected_rays()
+    draw_rays()
 
 def on_rotate_counterclockwise_button():
-    pass
+    cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
+    if not isinstance(cur_int_data_el, Reflector):
+        return
+    step = -5 #degrees
+    step *= math.pi/180 #radians
+    if lcr_flag[0] == "left":
+        cur_int_data_el.rotate(pivot=cur_int_data_el.get_start_coords(), angle=step)
+    elif lcr_flag[0] == "center":
+        cur_int_data_el.rotate(pivot=cur_int_data_el.get_center_coords(), angle=step)
+    elif lcr_flag[0] == "right":
+        cur_int_data_el.rotate(pivot=cur_int_data_el.get_end_coords(), angle=step)
+    update_drawing_reflector_after_rotation(cur_int_data_el)
+    update_reflected_rays()
+    draw_rays()
 
 lcr_flag = []
 drawing_to_internal_data_mapping = {}
