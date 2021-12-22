@@ -3,6 +3,8 @@ TODO add a clear all button
 TODO add a delete active element button
 TODO add ability to change scale
 TODO add ability to import image
+TODO fix slope == 0 condition
+TODO group buttons in their own grids like fr_buttons for better management
 '''
 
 from os import remove
@@ -146,7 +148,6 @@ def draw_all_room_entities():
     drawing_to_internal_data_mapping.clear()
     canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], fill='gray')
     update_reflected_rays()
-    drawing_to_internal_data_mapping.clear()
     diagonal_len = 20
     for source in Source.sources:
         this_id = canvas.create_rectangle(get_draw_rect_coords(source, diagonal_len), fill='#00FF00', activeoutline='red')
@@ -337,6 +338,7 @@ def user_draw_end_reflector(event):
     # canvas.delete("all")
     draw_all_room_entities()
     current_item.clear()
+
 def user_draw_receiver(event):
     insert_at_coords = (canvas.canvasx(event.x)/scale, canvas.canvasy(event.y)/scale)
     Receiver(insert_at_coords)
@@ -364,6 +366,27 @@ def unbind_all():
     canvas.unbind("<ButtonPress-1>")
     canvas.unbind("<B1-Motion>")
     canvas.unbind("<ButtonRelease-1>")
+
+def clear_canvas():
+    Reflector.reflectors.clear()
+    Ray.rays.clear()
+    Source.sources.clear()
+    Receiver.receivers.clear()
+    current_item.clear()
+    draw_all_room_entities()
+
+def delete_active_item():
+    if isinstance(current_item[0], Source):
+        cur_item_idx = Source.sources.index(current_item[0])
+        Source.sources.remove(cur_item_idx)
+    elif isinstance(current_item[0], Reflector):
+        cur_item_idx = Reflector.reflectors.index(current_item[0])
+        Reflector.reflectors.remove(cur_item_idx)
+    elif isinstance(current_item[0], Receiver):
+        cur_item_idx = Receiver.receivers.index(current_item[0])
+        Receiver.receivers.remove(cur_item_idx)
+    draw_all_room_entities()
+
 
 move_and_rotate_steps = [1, 1]
 lcr_flag = []
@@ -444,6 +467,9 @@ step_lable = tkinter.Label(fr_buttons, text=f"{move_and_rotate_steps[0]} (ft), {
 entry_box.insert(0, "input num val & click update")
 entry_box.focus()
 btn_selector = tkinter.Button(fr_buttons, text = "Select", command=bind_to_element_selector)
+spacer4 = tkinter.Label(fr_buttons, text='')
+btn_clear_canvas = tkinter.Button(fr_buttons, text = "Clear Canvas", command=clear_canvas)
+btn_delete_active_item = tkinter.Button(fr_buttons, text="Delete Active Item", command=delete_active_item)
 
 btn_open.grid(row=0, column=0, columnspan=6,  sticky="ew", padx=5)
 btn_save.grid(row=1, column=0, columnspan=6,  sticky="ew", padx=5)
@@ -467,6 +493,9 @@ btn_updt_angle_step.grid(row=18, column=0,columnspan=6,  sticky='ew', padx=5)
 entry_box.grid(row=19, column=0, columnspan=6, sticky='ew', padx=5)
 step_lable.grid(row=20, column=0, columnspan=6, sticky='ew', padx=5)
 btn_selector.grid(row = 21, column=0, columnspan=6, sticky='ew', padx=5)
+spacer4.grid(row = 22, column=0, columnspan=6, sticky='ew', padx=5)
+btn_clear_canvas.grid(row=23, column=0, columnspan=6, sticky='ew', padx=5)
+btn_delete_active_item.grid(row=24, column=0, columnspan=6, sticky='ew', padx=5)
 
 fr_buttons.grid(row=0, column=0, sticky='ns')
 canvas.grid(row=0, column=1, sticky='nsew')
