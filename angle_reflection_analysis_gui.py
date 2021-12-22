@@ -376,15 +376,14 @@ def clear_canvas():
     draw_all_room_entities()
 
 def delete_active_item():
-    if isinstance(current_item[0], Source):
-        cur_item_idx = Source.sources.index(current_item[0])
-        Source.sources.remove(cur_item_idx)
-    elif isinstance(current_item[0], Reflector):
-        cur_item_idx = Reflector.reflectors.index(current_item[0])
-        Reflector.reflectors.remove(cur_item_idx)
-    elif isinstance(current_item[0], Receiver):
-        cur_item_idx = Receiver.receivers.index(current_item[0])
-        Receiver.receivers.remove(cur_item_idx)
+    print(type(current_item[0]))
+    current_item_internal = drawing_to_internal_data_mapping[current_item[0][0]]
+    if isinstance(current_item_internal, Source):
+        Source.sources.remove(current_item_internal)
+    elif isinstance(current_item_internal, Reflector):
+        Reflector.reflectors.remove(current_item_internal)
+    elif isinstance(current_item_internal, Receiver):
+        Receiver.receivers.remove(current_item_internal)
     draw_all_room_entities()
 
 
@@ -438,7 +437,7 @@ window.title("this is the title2222")
 
 canvas = tkinter.Canvas(width=canvas_size[0], height=canvas_size[1], cursor="cross")
 
-# canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], fill='gray')
+bind_to_element_selector()
 
 window.rowconfigure(0, minsize=800, weight=1)
 window.columnconfigure(1, minsize=800, weight=1)
