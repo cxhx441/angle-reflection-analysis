@@ -1,3 +1,10 @@
+'''
+TODO add a clear all button
+TODO add a delete active element button
+TODO add ability to change scale
+TODO add ability to import image
+'''
+
 from os import remove
 from tkinter.constants import ACTIVE, COMMAND
 from Receiver import Receiver
@@ -126,7 +133,7 @@ def draw_rays():
     color = []
     for idx in range(0, len(Ray.rays), 6):
         if len(color) == 0:
-            color = ["yellow", "orange", "blue"]
+            color = ["yellow", "orange", "blue", "black", "red", "cyan", "magenta", "green"]
         cur_color = color.pop()
         for ray_num in range(6):
             this_ray = Ray.rays[ray_num+idx]
@@ -134,7 +141,12 @@ def draw_rays():
             drawing_to_internal_data_mapping[this_id] = this_ray
 
 def draw_all_room_entities():
+    current_item.clear()
+    canvas.delete("all")
+    drawing_to_internal_data_mapping.clear()
+    canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], fill='gray')
     update_reflected_rays()
+    drawing_to_internal_data_mapping.clear()
     diagonal_len = 20
     for source in Source.sources:
         this_id = canvas.create_rectangle(get_draw_rect_coords(source, diagonal_len), fill='#00FF00', activeoutline='red')
@@ -145,17 +157,10 @@ def draw_all_room_entities():
     for reflector in Reflector.reflectors:
         this_id = canvas.create_line(get_draw_line_coords(reflector), fill="purple", width=5, activefill = 'red')
         drawing_to_internal_data_mapping[this_id] = reflector
-
-    # color = []
-    # for idx in range(0, len(Ray.rays), 6):
-    #         if len(color) == 0:
-    #             color = ["yellow", "orange", "blue"]
-    #         cur_color = color.pop()
-    #         for ray_num in range(6):
         draw_rays()
 
 def save_file():
-    filepath = asksaveasfilename(defaultextension="txt", filetypes=[("Text Files", "*.txt")])
+    filepath = asksaveasfilename(defaultextension="pickle")
     if not filepath:
         return
 
@@ -170,7 +175,7 @@ def save_file():
         pickle.dump(data, output_file)
 
 def open_file():
-    filepath = askopenfilename(filetypes=[("Text Files", "*.txt")])
+    filepath = askopenfilename(filetypes=[("Pickle Files", "*.pickle")])
     if not filepath:
         return
     with open(filepath, "rb") as input_file:
@@ -199,7 +204,7 @@ def load_json(data):
     for receiver in data['receivers']:
         Receiver.receivers.append(receiver)
 
-def on_click(event):
+def on_drawing_element_click(event):
     if len(current_item) != 0:
         current_item.pop()
     current_item.append(event.widget.find_withtag("current"))
@@ -307,6 +312,59 @@ def update_rotate_step():
     move_and_rotate_steps[1] = int(entry_box.get())
     step_lable.configure(text=f'{move_and_rotate_steps[0]} (ft), {move_and_rotate_steps[1]} (deg)')
 
+def user_draw_source(event):
+    insert_at_coords = (canvas.canvasx(event.x)/scale, canvas.canvasy(event.y)/scale)
+    Source(insert_at_coords)
+    draw_all_room_entities()
+
+def user_draw_start_reflector(event):
+    if len(current_item) != 0:
+        current_item.clear()
+    start_at_coords = (canvas.canvasx(event.x), canvas.canvasy(event.y))
+    this_id = canvas.create_line(start_at_coords, start_at_coords, fill="purple", width=5, activefill = 'red')
+    current_item.append(this_id)
+def user_draw_move_reflector(event):
+    new_coords_end = (canvas.canvasx(event.x), canvas.canvasy(event.y))
+    cur_coords = canvas.coords(current_item[0])
+    start_coords = (cur_coords[0], cur_coords[1])
+    canvas.coords(current_item[0], start_coords[0], start_coords[1], new_coords_end[0], new_coords_end[1])
+def user_draw_end_reflector(event):
+    new_coords_end = (canvas.canvasx(event.x), canvas.canvasy(event.y))
+    cur_coords = canvas.coords(current_item[0])
+    start_coords = (cur_coords[0], cur_coords[1])
+    canvas.coords(current_item[0], start_coords[0], start_coords[1], new_coords_end[0], new_coords_end[1])
+    Reflector((x/scale for x in start_coords), (x/scale for x in new_coords_end))
+    # canvas.delete("all")
+    draw_all_room_entities()
+    current_item.clear()
+def user_draw_receiver(event):
+    insert_at_coords = (canvas.canvasx(event.x)/scale, canvas.canvasy(event.y)/scale)
+    Receiver(insert_at_coords)
+    draw_all_room_entities()
+
+def bind_to_draw_source():
+    unbind_all()
+    canvas.bind("<ButtonPress-1>", user_draw_source)
+
+def bind_to_draw_reflector():
+    unbind_all()
+    temp_line = canvas.bind("<ButtonPress-1>", user_draw_start_reflector)
+    canvas.bind("<B1-Motion>", user_draw_move_reflector)
+    canvas.bind("<ButtonRelease-1>", user_draw_end_reflector)
+
+def bind_to_draw_receiver():
+    unbind_all()
+    canvas.bind("<ButtonPress-1>", user_draw_receiver)
+
+def bind_to_element_selector():
+    unbind_all()
+    canvas.bind('<Button-1>', on_drawing_element_click)
+
+def unbind_all():
+    canvas.unbind("<ButtonPress-1>")
+    canvas.unbind("<B1-Motion>")
+    canvas.unbind("<ButtonRelease-1>")
+
 move_and_rotate_steps = [1, 1]
 lcr_flag = []
 drawing_to_internal_data_mapping = {}
@@ -341,10 +399,10 @@ r6 = Receiver(r6_pos)
 ref1 = Reflector(ref1_pos0, ref1_pos1)
 ref2 = Reflector(ref2_pos0, ref2_pos1)
 ref3 = Reflector(ref3_pos0, ref3_pos1)
-# ref3.rotate(pivot=ref3.get_center_coords(), angle=5*math.pi/180)
-# ref2.rotate(pivot=ref2.get_start_coords(), angle=-6*math.pi/180)
-# ref1.rotate(pivot=ref1.get_start_coords(), angle=-6*math.pi/180)
-ref1.move_vertical(-10)
+ref3.rotate(pivot=ref3.get_center_coords(), angle=5*math.pi/180)
+ref2.rotate(pivot=ref2.get_start_coords(), angle=-6*math.pi/180)
+ref1.rotate(pivot=ref1.get_start_coords(), angle=-6*math.pi/180)
+# ref1.move_vertical(-10)
 
 if room_size == None:
     canvas_size = (760, 450)
@@ -357,7 +415,7 @@ window.title("this is the title2222")
 
 canvas = tkinter.Canvas(width=canvas_size[0], height=canvas_size[1], cursor="cross")
 
-canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], fill='gray')
+# canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], fill='gray')
 
 window.rowconfigure(0, minsize=800, weight=1)
 window.columnconfigure(1, minsize=800, weight=1)
@@ -365,9 +423,9 @@ fr_buttons = tkinter.Frame(window)
 btn_open = tkinter.Button(fr_buttons, text='Open', command=open_file)
 btn_save = tkinter.Button(fr_buttons, text='Save As...', command=save_file)
 spacer1 = tkinter.Label(fr_buttons, text='')
-btn_draw_source = tkinter.Button(fr_buttons, text='Draw Source')
-btn_draw_reflector = tkinter.Button(fr_buttons, text='Draw Reflector')
-btn_draw_receiver = tkinter.Button(fr_buttons, text='Draw Receiver')
+btn_draw_source = tkinter.Button(fr_buttons, text='Draw Source', command=bind_to_draw_source)
+btn_draw_reflector = tkinter.Button(fr_buttons, text='Draw Reflector', command=bind_to_draw_reflector)
+btn_draw_receiver = tkinter.Button(fr_buttons, text='Draw Receiver', command=bind_to_draw_receiver)
 spacer2 = tkinter.Label(fr_buttons, text='')
 btn_move_active_obj_up = tkinter.Button(fr_buttons, text='Move Up', command=on_move_up_button)
 btn_move_active_obj_down = tkinter.Button(fr_buttons, text='Move Down', command=on_move_down_button)
@@ -383,32 +441,35 @@ btn_updt_move_step = tkinter.Button(fr_buttons, text = "Update Move Step (ft)", 
 btn_updt_angle_step = tkinter.Button(fr_buttons, text = "Update Angle Step (deg)", command=update_rotate_step)
 entry_box = tkinter.Entry(fr_buttons, textvariable=5)
 step_lable = tkinter.Label(fr_buttons, text=f"{move_and_rotate_steps[0]} (ft), {move_and_rotate_steps[1]} (deg)")
+entry_box.insert(0, "input num val & click update")
+entry_box.focus()
+btn_selector = tkinter.Button(fr_buttons, text = "Select", command=bind_to_element_selector)
 
-btn_open.grid(row=0, column=0, sticky="ew", padx=5)
-btn_save.grid(row=1, column=0, sticky="ew", padx=5)
-spacer1.grid(row=2, column=0, sticky='ew', padx=5)
-btn_draw_source.grid(row=3, column=0, sticky="ew", padx=5)
-btn_draw_reflector.grid(row=4, column=0, sticky="ew", padx=5)
-btn_draw_receiver.grid(row=5, column=0, sticky="ew", padx=5)
-spacer2.grid(row=6, column=0, sticky='ew', padx=5)
-btn_move_active_obj_up.grid(row=7, column=0, sticky='ew', padx=5)
-btn_move_active_obj_down.grid(row=8, column=0, sticky='ew', padx=5)
-btn_move_active_obj_right.grid(row=9, column=0, sticky='ew', padx=5)
-btn_move_active_obj_left.grid(row=10, column=0, sticky='ew', padx=5)
-spacer3.grid(row=11, column=0, sticky='ew', padx=5)
-btn_l.grid(row=12, column=0, sticky='ew', padx=5)
-btn_c.grid(row=13, column=0, sticky='ew', padx=5)
-btn_r.grid(row=14, column=0, sticky='ew', padx=5)
-btn_rotate_active_obj_clockwise.grid(row=15, column=0, sticky='ew', padx=5)
-btn_rotate_active_obj_counterclockwise.grid(row=16, column=0, sticky='ew', padx=5)
-btn_updt_move_step.grid(row=17, column=0, sticky='ew', padx=5)
-btn_updt_angle_step.grid(row=18, column=0, sticky='ew', padx=5)
-entry_box.grid(row=19, column=0, sticky='ew', padx=5)
-step_lable.grid(row=20, column=0, sticky='ew', padx=5)
+btn_open.grid(row=0, column=0, columnspan=6,  sticky="ew", padx=5)
+btn_save.grid(row=1, column=0, columnspan=6,  sticky="ew", padx=5)
+spacer1.grid(row=2, column=0, columnspan=6,  sticky='ew', padx=5)
+btn_draw_source.grid(row=3, column=0, columnspan=6,  sticky="ew", padx=5)
+btn_draw_reflector.grid(row=4, column=0, columnspan=6,  sticky="ew", padx=5)
+btn_draw_receiver.grid(row=5, column=0, columnspan=6,  sticky="ew", padx=5)
+spacer2.grid(row=6, column=0, columnspan=6,  sticky='ew', padx=5)
+btn_move_active_obj_up.grid(row=7, column=0, columnspan=6, sticky='ew', padx=5)
+btn_move_active_obj_down.grid(row=9, column=0, columnspan=6, sticky='ew', padx=5)
+btn_move_active_obj_right.grid(row=8, column=3, columnspan=3, sticky='ew', padx=5)
+btn_move_active_obj_left.grid(row=8, column=0, columnspan=3, sticky='ew', padx=5)
+spacer3.grid(row=11, column=0, columnspan=6,  sticky='ew', padx=5)
+btn_l.grid(row=12, column=0, columnspan=2,  sticky='ew', padx=5)
+btn_c.grid(row=12, column=2, columnspan=2, sticky='ew', padx=5)
+btn_r.grid(row=12, column=4, columnspan=2, sticky='ew', padx=5)
+btn_rotate_active_obj_clockwise.grid(row=15, column=0, columnspan=6,  sticky='ew', padx=5)
+btn_rotate_active_obj_counterclockwise.grid(row=16, column=0, columnspan=6,  sticky='ew', padx=5)
+btn_updt_move_step.grid(row=17, column=0, columnspan=6, sticky='ew', padx=5)
+btn_updt_angle_step.grid(row=18, column=0,columnspan=6,  sticky='ew', padx=5)
+entry_box.grid(row=19, column=0, columnspan=6, sticky='ew', padx=5)
+step_lable.grid(row=20, column=0, columnspan=6, sticky='ew', padx=5)
+btn_selector.grid(row = 21, column=0, columnspan=6, sticky='ew', padx=5)
 
 fr_buttons.grid(row=0, column=0, sticky='ns')
 canvas.grid(row=0, column=1, sticky='nsew')
-canvas.bind('<Button-1>', on_click)
 
 draw_all_room_entities()
 window.mainloop()
