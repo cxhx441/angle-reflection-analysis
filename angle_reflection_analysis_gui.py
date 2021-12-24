@@ -1,10 +1,7 @@
 '''
-TODO add a clear all button
-TODO add a delete active element button
 TODO add ability to change scale
-TODO add ability to import image
-TODO fix slope == 0 condition
-TODO group buttons in their own grids like fr_buttons for better management
+TODO group buttons in their own grids like fr_buttons for better
+TODO allow fractional step movements
 '''
 
 from os import remove
@@ -85,10 +82,19 @@ def angle_between_2_lines(line0, line1):
     return math.degrees(math.atan((m1-m0)/(1+(m1*m0))))
 
 def get_intersection_of_two_lines(line0, line1):
-    m0, b0 = line0.get_slope_intercept_form()
-    m1, b1 = line1.get_slope_intercept_form()
-    x_int = (b1 - b0)/(m0-m1)
-    return (x_int, m0*x_int + b0)
+    #if reflector horizontal
+    if line0.get_start_coords()[1] == line0.get_end_coords()[1]:
+        print("horiz")
+        return(line1.get_start_coords()[0], line0.get_start_coords()[1])
+    #if reflector vertical
+    elif line0.get_start_coords()[0] == line0.get_end_coords()[0]:
+        print("vert")
+        return(line0.get_start_coords()[0], line1.get_start_coords()[1])
+    else:
+        m0, b0 = line0.get_slope_intercept_form()
+        m1, b1 = line1.get_slope_intercept_form()
+        x_int = (b1 - b0)/(m0-m1)
+        return (x_int, m0*x_int + b0)
 
 def update_reflected_rays():
     Ray.rays.clear()
@@ -146,8 +152,13 @@ def draw_all_room_entities():
     current_item.clear()
     canvas.delete("all")
     drawing_to_internal_data_mapping.clear()
-    canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], fill='gray')
-    update_reflected_rays()
+    images.clear()
+    if len(image_filepaths) != 0:
+        draw_image()
+    elif len(images) != 0:
+        draw_image()
+    else:
+        canvas.create_rectangle(0, 0, canvas_size[0], canvas_size[1], fill='gray')
     diagonal_len = 20
     for source in Source.sources:
         this_id = canvas.create_rectangle(get_draw_rect_coords(source, diagonal_len), fill='#00FF00', activeoutline='red')
@@ -158,7 +169,8 @@ def draw_all_room_entities():
     for reflector in Reflector.reflectors:
         this_id = canvas.create_line(get_draw_line_coords(reflector), fill="purple", width=5, activefill = 'red')
         drawing_to_internal_data_mapping[this_id] = reflector
-        draw_rays()
+    update_reflected_rays()
+    draw_rays()
 
 def save_file():
     filepath = asksaveasfilename(defaultextension="pickle")
@@ -171,7 +183,8 @@ def save_file():
     data['sources'] = Source.sources
     data['reflectors'] = Reflector.reflectors
     data['receivers'] = Receiver.receivers
-
+    if len(image_filepaths) != 0:
+        data['image_filepath'] = image_filepaths[0]
     with open(filepath, 'wb') as output_file:
         pickle.dump(data, output_file)
 
@@ -191,8 +204,13 @@ def load_json(data):
     Receiver.receivers.clear()
     Ray.rays.clear()
     canvas.delete('all')
+    images.clear()
+    image_filepaths.clear()
     scale = data['scale']
     room_size = data['room size']
+
+    if 'image_filepath' in data.keys():
+        image_filepaths.append(data['image_filepath'])
     scale_and_room_size_list_for_saving = [scale, room_size]
     canvas_size = tuple(x*scale for x in room_size)
     canvas.config(width=canvas_size[0], height=canvas_size[1])
@@ -373,6 +391,8 @@ def clear_canvas():
     Source.sources.clear()
     Receiver.receivers.clear()
     current_item.clear()
+    images.clear()
+    image_filepaths.clear()
     draw_all_room_entities()
 
 def delete_active_item():
@@ -386,7 +406,41 @@ def delete_active_item():
         Receiver.receivers.remove(current_item_internal)
     draw_all_room_entities()
 
+def import_image():
+    filepath = askopenfilename(filetypes=[("jpeg", "*.jpg"), ("bitmap", "*.bmp"), ("png", "*.png")])
+    if not filepath:
+        return
+    image_filepaths.clear()
+    image_filepaths.append(filepath)
+    draw_all_room_entities()
 
+def draw_image():
+    if len(images) != 0:
+        image = images[0]
+        # with Image.open("/Users/craigharris/Desktop/Screen Shot 2021-05-19 at 20.54.17.png") as image:
+        image_width, image_height = (int(x/3) for x in image.size)
+        image = image.resize((image_width, image_height), Image.LANCZOS)
+        tk_image = ImageTk.PhotoImage(image)
+        # image_display_width = image_width
+        # image_display_height = image_height
+        # canvas.create_image(image_display_width/2, image_display_height/2, tag="base_drawing", image=tk_image)
+        base_layer = canvas.create_image(0, 0, anchor='nw', tag="base_drawing", image=tk_image)
+    else:
+        images.clear()
+        with Image.open(image_filepaths[0]) as image:
+            # with Image.open("/Users/craigharris/Desktop/Screen Shot 2021-05-19 at 20.54.17.png") as image:
+            image_width, image_height = (int(x/3) for x in image.size)
+            image_resize = image.resize((image_width, image_height), Image.LANCZOS)
+            tk_image = ImageTk.PhotoImage(image_resize)
+            # image_display_width = image_width
+            # image_display_height = image_height
+            # canvas.create_image(image_display_width/2, image_display_height/2, tag="base_drawing", image=tk_image)
+            base_layer = canvas.create_image(0, 0, anchor='nw', tag="base_drawing", image=tk_image)
+    images.append(tk_image)  # you need to keep a reference to the tk_image or the garbage collector removes it
+
+
+image_filepaths = []
+images = []
 move_and_rotate_steps = [1, 1]
 lcr_flag = []
 drawing_to_internal_data_mapping = {}
@@ -408,6 +462,8 @@ ref2_pos0 = (59.351, 45.38-31.253)
 ref2_pos1 = (48.198, 45.38-35.313)
 ref3_pos0 = (73.362, 45.38-25.586)
 ref3_pos1 = (62.188, 45.38-29.653)
+ref4_pos0 = (10, 10)
+ref4_pos1 = (10, 20)
 
 # get_reflector_to_edge
 
@@ -421,6 +477,7 @@ r6 = Receiver(r6_pos)
 ref1 = Reflector(ref1_pos0, ref1_pos1)
 ref2 = Reflector(ref2_pos0, ref2_pos1)
 ref3 = Reflector(ref3_pos0, ref3_pos1)
+# ref4 = Reflector(ref4_pos0, ref4_pos1)
 ref3.rotate(pivot=ref3.get_center_coords(), angle=5*math.pi/180)
 ref2.rotate(pivot=ref2.get_start_coords(), angle=-6*math.pi/180)
 ref1.rotate(pivot=ref1.get_start_coords(), angle=-6*math.pi/180)
@@ -469,6 +526,7 @@ btn_selector = tkinter.Button(fr_buttons, text = "Select", command=bind_to_eleme
 spacer4 = tkinter.Label(fr_buttons, text='')
 btn_clear_canvas = tkinter.Button(fr_buttons, text = "Clear Canvas", command=clear_canvas)
 btn_delete_active_item = tkinter.Button(fr_buttons, text="Delete Active Item", command=delete_active_item)
+btn_import_image = tkinter.Button(fr_buttons, text="Import Image", command=import_image)
 
 btn_open.grid(row=0, column=0, columnspan=6,  sticky="ew", padx=5)
 btn_save.grid(row=1, column=0, columnspan=6,  sticky="ew", padx=5)
@@ -495,9 +553,11 @@ btn_selector.grid(row = 21, column=0, columnspan=6, sticky='ew', padx=5)
 spacer4.grid(row = 22, column=0, columnspan=6, sticky='ew', padx=5)
 btn_clear_canvas.grid(row=23, column=0, columnspan=6, sticky='ew', padx=5)
 btn_delete_active_item.grid(row=24, column=0, columnspan=6, sticky='ew', padx=5)
+btn_import_image.grid(row=25, column=0, columnspan=6, sticky='ew', padx=5)
 
 fr_buttons.grid(row=0, column=0, sticky='ns')
 canvas.grid(row=0, column=1, sticky='nsew')
+
 
 draw_all_room_entities()
 window.mainloop()

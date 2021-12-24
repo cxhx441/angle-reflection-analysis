@@ -46,6 +46,7 @@ class Ray():
     def get_slope(self):
         return (self.y1-self.y0) / (self.x1-self.x0)
 
+
     def rotate(self,pivot=None, angle=None):
         if angle == None:
             angle = math.pi/2
