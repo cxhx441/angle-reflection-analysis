@@ -1,4 +1,6 @@
 '''
+TODO add better documentation
+TODO Pickle the image in the saved file. 
 TODO add ability to change scale
 TODO group buttons in their own grids like fr_buttons for better
 TODO allow fractional step movements
