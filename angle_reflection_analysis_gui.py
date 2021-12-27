@@ -427,15 +427,30 @@ def draw_image():
         base_layer = canvas.create_image(0, 0, anchor='nw', tag="base_drawing", image=tk_image)
     else:
         images.clear()
-        with Image.open(image_filepaths[0]) as image:
-            # with Image.open("/Users/craigharris/Desktop/Screen Shot 2021-05-19 at 20.54.17.png") as image:
-            image_width, image_height = (int(x/3) for x in image.size)
-            image_resize = image.resize((image_width, image_height), Image.LANCZOS)
-            tk_image = ImageTk.PhotoImage(image_resize)
-            # image_display_width = image_width
-            # image_display_height = image_height
-            # canvas.create_image(image_display_width/2, image_display_height/2, tag="base_drawing", image=tk_image)
-            base_layer = canvas.create_image(0, 0, anchor='nw', tag="base_drawing", image=tk_image)
+        try:
+            with Image.open(image_filepaths[0]) as image:
+                image_width, image_height = (int(x/3) for x in image.size)
+                image_resize = image.resize((image_width, image_height), Image.LANCZOS)
+                tk_image = ImageTk.PhotoImage(image_resize)
+                # image_display_width = image_width
+                # image_display_height = image_height
+                # canvas.create_image(image_display_width/2, image_display_height/2, tag="base_drawing", image=tk_image)
+                base_layer = canvas.create_image(0, 0, anchor='nw', tag="base_drawing", image=tk_image)
+        except FileNotFoundError:
+            if '/' in image_filepaths[0]: # mac paths
+                temp_filepath = image_filepaths[0].split('/')[-1]
+            elif '\\' in image_filepaths[0]: # windows paths
+                temp_filepath = image_filepaths[0].split('\\')[-1]
+
+            with Image.open(temp_filepath) as image:
+                image_width, image_height = (int(x/3) for x in image.size)
+                image_resize = image.resize((image_width, image_height), Image.LANCZOS)
+                tk_image = ImageTk.PhotoImage(image_resize)
+                # image_display_width = image_width
+                # image_display_height = image_height
+                # canvas.create_image(image_display_width/2, image_display_height/2, tag="base_drawing", image=tk_image)
+                base_layer = canvas.create_image(0, 0, anchor='nw', tag="base_drawing", image=tk_image)
+
     images.append(tk_image)  # you need to keep a reference to the tk_image or the garbage collector removes it
 
 
