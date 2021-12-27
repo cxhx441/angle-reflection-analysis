@@ -1,6 +1,8 @@
 '''
 TODO add better documentation
 TODO Pickle the image in the saved file. 
+TODO make it so image_scale gets pickled and updated on load. 
+TODO make global variable not lists. 
 TODO add ability to change scale
 TODO group buttons in their own grids like fr_buttons for better
 TODO allow fractional step movements
@@ -420,7 +422,7 @@ def draw_image():
     if len(images) != 0:
         image = images[0]
         # with Image.open("/Users/craigharris/Desktop/Screen Shot 2021-05-19 at 20.54.17.png") as image:
-        image_width, image_height = (int(x/3) for x in image.size)
+        image_width, image_height = (int(x/image_scale) for x in image.size)
         image = image.resize((image_width, image_height), Image.LANCZOS)
         tk_image = ImageTk.PhotoImage(image)
         # image_display_width = image_width
@@ -431,7 +433,7 @@ def draw_image():
         images.clear()
         try:
             with Image.open(image_filepaths[0]) as image:
-                image_width, image_height = (int(x/3) for x in image.size)
+                image_width, image_height = (int(x/image_scale) for x in image.size)
                 image_resize = image.resize((image_width, image_height), Image.LANCZOS)
                 tk_image = ImageTk.PhotoImage(image_resize)
                 # image_display_width = image_width
@@ -455,7 +457,7 @@ def draw_image():
 
     images.append(tk_image)  # you need to keep a reference to the tk_image or the garbage collector removes it
 
-
+image_scale = 2 
 image_filepaths = []
 images = []
 move_and_rotate_steps = [1, 1]
