@@ -1,4 +1,5 @@
 '''
+TODO Tests? 
 TODO add better documentation
 TODO Pickle the image in the saved file. 
 TODO make it so image_scale gets pickled and updated on load. 
@@ -21,17 +22,21 @@ from tkinter.filedialog import askopenfilename, asksaveasfilename
 import pickle
 
 def get_draw_line_coords(obj):
+    '''returns the scaled coordinates for each end of a line as a tuple, to be drawn on the canvas'''
     x0, y0 = obj.get_start_coords()
     x1, y1 = obj.get_end_coords()
     x0, y0, x1, y1 = (el*scale for el in (x0, y0, x1, y1))
     return (x0, y0, x1, y1)
 
 def rotate_tkinter_line(current_coords, pivot=None, angle=None):
-    if angle == None:
+    '''takes a tkinter line coordinates and rotates about the pivot point by the specified angle'''
+    if angle == None: # TODO I think this could be handled as a default parameter. 
         angle = math.pi/2
     new_x0, new_y0, new_x1, new_y1 = current_coords
     new_x_mid, new_y_mid = ((new_x0 + new_x1)/2, (new_y0 + new_y1)/2)
-    if pivot == (new_x0, new_y0) or pivot == None:
+
+    #shift the line to the origin
+    if pivot == (new_x0, new_y0) or pivot == None: # TODO could probably also be handled as default parameter
         trans_x0 = new_x0 - new_x0
         trans_x1 = new_x1 - new_x0
         trans_y0 = new_y0 - new_y0
@@ -47,12 +52,14 @@ def rotate_tkinter_line(current_coords, pivot=None, angle=None):
         trans_y0 = new_y0 - new_y_mid
         trans_y1 = new_y1 - new_y_mid
 
+    # rotate about the origin
     x0 = trans_x0*math.cos(angle) - trans_y0*math.sin(angle)
     x1 = trans_x1*math.cos(angle) - trans_y1*math.sin(angle)
     y0 = trans_x0*math.sin(angle) + trans_y0*math.cos(angle)
     y1 = trans_x1*math.sin(angle) + trans_y1*math.cos(angle)
 
-    if pivot == (new_x0, new_y0) or pivot == None:
+    # shift back to original positition
+    if pivot == (new_x0, new_y0) or pivot == None: # TODO handle as default parameter
         x0 += new_x0
         x1 += new_x0
         y0 += new_y0
@@ -67,25 +74,30 @@ def rotate_tkinter_line(current_coords, pivot=None, angle=None):
         x1 += new_x_mid
         y0 += new_y_mid
         y1 += new_y_mid
+
     return (x0, x1, y0, y1)
 
 def get_draw_rect_coords(obj, diagonal_len):
+    '''returns the scaled coordinates for the center of a rectangle, to be drawn on the canvas'''
     x, y = obj.get_coords()
     x, y = (el*scale for el in (x, y))
     return (x-diagonal_len, y-diagonal_len, x+diagonal_len, y+diagonal_len)
 
 def create_rays_2_reflector(source_obj, ref_obj):
+    '''creates 3 Ray objects originating from the source and leading to each end + the middle of the specified Reflector object. NOT scaled.'''
     ray_2_start = Ray(source_obj.get_coords(), ref_obj.get_start_coords())
     ray_2_center = Ray(source_obj.get_coords(), ref_obj.get_center_coords())
     ray_2_end = Ray(source_obj.get_coords(), ref_obj.get_end_coords())
     return (ray_2_start, ray_2_center, ray_2_end)
 
 def angle_between_2_lines(line0, line1):
+    '''returns the angle in degrees between to lines'''
     m0 = line0.get_slope()
     m1 = line1.get_slope()
     return math.degrees(math.atan((m1-m0)/(1+(m1*m0))))
 
 def get_intersection_of_two_lines(line0, line1):
+    '''returns the intersection coordinates of 2 lines. meant for use when drawing reflection rays.'''
     #if reflector horizontal
     if line0.get_start_coords()[1] == line0.get_end_coords()[1]:
         print("horiz")
@@ -101,6 +113,7 @@ def get_intersection_of_two_lines(line0, line1):
         return (x_int, m0*x_int + b0)
 
 def update_reflected_rays():
+    '''generates 3 Ray objects from each source to each reflector. leading to each end and middle of the reflectors.'''
     Ray.rays.clear()
     for source in Source.sources:
         for reflector in Reflector.reflectors:
@@ -139,6 +152,7 @@ def update_reflected_rays():
             # return (ray_2_start, ray_2_center, ray_2_end, reflect_ray_2_start, reflect_ray_2_center, reflect_ray_2_end)
 
 def draw_rays():
+    '''first removes all old rays on the screen, then draws new rays from Ray.rays list'''
     for key in drawing_to_internal_data_mapping:
         if isinstance(drawing_to_internal_data_mapping[key], Ray):
             canvas.delete(key)
@@ -153,6 +167,7 @@ def draw_rays():
             drawing_to_internal_data_mapping[this_id] = this_ray
 
 def draw_all_room_entities():
+    '''clears the current item, canvas, mappings between drawing/internal data, images. Then redraws from Source.sources, Reflector.reflectors, Receiver.receivers, Ray.rays, any image file available'''
     current_item.clear()
     canvas.delete("all")
     drawing_to_internal_data_mapping.clear()
@@ -177,6 +192,7 @@ def draw_all_room_entities():
     draw_rays()
 
 def save_file():
+    '''pickles a dict containing: scale, roomsize, sources, reflectors, receivers, image_filepath'''
     filepath = asksaveasfilename(defaultextension="pickle")
     if not filepath:
         return
@@ -193,16 +209,18 @@ def save_file():
         pickle.dump(data, output_file)
 
 def open_file():
+    '''choose the file to open, load json, draw all room entities'''
     filepath = askopenfilename(filetypes=[("Pickle Files", "*.pickle")])
     if not filepath:
         return
     with open(filepath, "rb") as input_file:
         data = pickle.load(input_file)
-    load_json(data)
+    load_pickle(data)
 
     draw_all_room_entities()
 
-def load_json(data):
+def load_pickle(data):
+    '''clear all internal data, delete canvas, delete images/image_filepath, load variables from pickled data.'''
     Source.sources.clear()
     Reflector.reflectors.clear()
     Receiver.receivers.clear()
@@ -228,12 +246,14 @@ def load_json(data):
         Receiver.receivers.append(receiver)
 
 def on_drawing_element_click(event):
+    '''update current item to clicked element'''
     if len(current_item) != 0:
         current_item.pop()
     current_item.append(event.widget.find_withtag("current"))
     print(current_item[0])
 
 def on_move_down_button():
+    '''update coords in internal data and redraw room'''
     step = move_and_rotate_steps[0]*scale
     canvas.move(current_item[0], 0, abs(step))
     #move data
@@ -244,6 +264,7 @@ def on_move_down_button():
     draw_rays()
 
 def on_move_up_button():
+    '''update coords in internal data and redraw room'''
     step = move_and_rotate_steps[0]*scale
     canvas.move(current_item[0], 0, -abs(step))
     #move data
@@ -254,6 +275,7 @@ def on_move_up_button():
     draw_rays()
 
 def on_move_right_button():
+    '''update coords in internal data and redraw room'''
     step = move_and_rotate_steps[0]*scale
     canvas.move(current_item[0], abs(step), 0)
     #move data
@@ -264,6 +286,7 @@ def on_move_right_button():
     draw_rays()
 
 def on_move_left_button():
+    '''update coords in internal data and redraw room'''
     step = move_and_rotate_steps[0]*scale
     canvas.move(current_item[0], -abs(step), 0)
     #move data
@@ -273,28 +296,33 @@ def on_move_left_button():
     update_reflected_rays()
     draw_rays()
 
-def on_lcr_choice_LEFT():
+def on_lcr_choice_LEFT(): # TODO update LCR variable name
+    '''update lcr flag based on button clicked'''
     if len(lcr_flag) != 0:
         lcr_flag.clear()
     lcr_flag.append("left")
 
-def on_lcr_choice_CENTER():
+def on_lcr_choice_CENTER():  # TODO update LCR variable name
+    '''update lcr flag based on button clicked'''
     if len(lcr_flag) != 0:
         lcr_flag.clear()
     lcr_flag.append("center")
 
-def on_lcr_choice_RIGHT():
+def on_lcr_choice_RIGHT():  # TODO update LCR variable name
+    '''update lcr flag based on button clicked'''
     if len(lcr_flag) != 0:
         lcr_flag.clear()
     lcr_flag.append("right")
 
 def update_drawing_reflector_after_rotation(internal_item):
+    '''updates reflector drawing based on internal item coords'''
     start_coords = internal_item.get_start_coords()
     end_coords = internal_item.get_end_coords()
     new_drawing_coords = (start_coords[0]*scale, start_coords[1]*scale, end_coords[0]*scale, end_coords[1]*scale)
     canvas.coords(current_item[0], new_drawing_coords)
 
 def on_rotate_clockwise_button():
+    '''CLOCKWISE - updates internal data of reflector based on rotation, updates reflector drawing, updates rays and ray drawings'''
     cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
     if not isinstance(cur_int_data_el, Reflector):
         return
@@ -310,7 +338,8 @@ def on_rotate_clockwise_button():
     update_reflected_rays()
     draw_rays()
 
-def on_rotate_counterclockwise_button():
+def on_rotate_counterclockwise_button(): # TODO maybe combine this with the clockwise function
+    '''COUNTERCLOCKWISE - updates internal data of reflector based on rotation, updates reflector drawing, updates rays and ray drawings'''
     cur_int_data_el = drawing_to_internal_data_mapping[current_item[0][0]]
     if not isinstance(cur_int_data_el, Reflector):
         return
