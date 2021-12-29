@@ -1,12 +1,13 @@
 '''
-TODO Tests? 
+TODO Tests?
 TODO add better documentation
-TODO Pickle the image in the saved file. 
-TODO make it so image_scale gets pickled and updated on load. 
-TODO make global variable not lists. 
+TODO Pickle the image in the saved file.
+TODO make it so image_scale gets pickled and updated on load.
+TODO make global variable not lists.
 TODO add ability to change scale
 TODO group buttons in their own grids like fr_buttons for better
 TODO allow fractional step movements
+TODO add labels for angle/position of each reflector
 '''
 
 from os import remove
@@ -30,7 +31,7 @@ def get_draw_line_coords(obj):
 
 def rotate_tkinter_line(current_coords, pivot=None, angle=None):
     '''takes a tkinter line coordinates and rotates about the pivot point by the specified angle'''
-    if angle == None: # TODO I think this could be handled as a default parameter. 
+    if angle == None: # TODO I think this could be handled as a default parameter.
         angle = math.pi/2
     new_x0, new_y0, new_x1, new_y1 = current_coords
     new_x_mid, new_y_mid = ((new_x0 + new_x1)/2, (new_y0 + new_y1)/2)
@@ -356,31 +357,38 @@ def on_rotate_counterclockwise_button(): # TODO maybe combine this with the cloc
     draw_rays()
 
 def update_move_step():
-    move_and_rotate_steps[0] = int(entry_box.get())
-
+    '''updates the distance by which an object is moved (also updates the label)'''
+    move_and_rotate_steps[0] = int(entry_box.get()) # TODO update this so you can do fractional steps
     step_lable.configure(text=f'{move_and_rotate_steps[0]} (ft), {move_and_rotate_steps[1]} (deg)')
 
 def update_rotate_step():
-    move_and_rotate_steps[1] = int(entry_box.get())
+    '''updates the angle by which an reflector is rotated (also updates the label)'''
+    move_and_rotate_steps[1] = int(entry_box.get()) # TODO update this so you can do fractional angles??? (maybe not fractional degrees)
     step_lable.configure(text=f'{move_and_rotate_steps[0]} (ft), {move_and_rotate_steps[1]} (deg)')
 
 def user_draw_source(event):
+    '''takes the location of mouse click and creates an unscaled Source object version, redraws everything'''
     insert_at_coords = (canvas.canvasx(event.x)/scale, canvas.canvasy(event.y)/scale)
     Source(insert_at_coords)
     draw_all_room_entities()
 
 def user_draw_start_reflector(event):
+    '''handles the start of a reflector drawing. also updates this to be the current item. Only handles drawing, no internal data. '''
     if len(current_item) != 0:
         current_item.clear()
     start_at_coords = (canvas.canvasx(event.x), canvas.canvasy(event.y))
     this_id = canvas.create_line(start_at_coords, start_at_coords, fill="purple", width=5, activefill = 'red')
     current_item.append(this_id)
+
 def user_draw_move_reflector(event):
+    '''handles the reflector drawing while the mouse is moving but click hasn't released. Only updates drawing, nothing with internal data'''
     new_coords_end = (canvas.canvasx(event.x), canvas.canvasy(event.y))
     cur_coords = canvas.coords(current_item[0])
     start_coords = (cur_coords[0], cur_coords[1])
     canvas.coords(current_item[0], start_coords[0], start_coords[1], new_coords_end[0], new_coords_end[1])
+
 def user_draw_end_reflector(event):
+    '''handles the reflector drawing when mouseclick is released. creates Reflector object based on un-scaled coordinates. '''
     new_coords_end = (canvas.canvasx(event.x), canvas.canvasy(event.y))
     cur_coords = canvas.coords(current_item[0])
     start_coords = (cur_coords[0], cur_coords[1])
@@ -388,37 +396,44 @@ def user_draw_end_reflector(event):
     Reflector((x/scale for x in start_coords), (x/scale for x in new_coords_end))
     # canvas.delete("all")
     draw_all_room_entities()
-    current_item.clear()
+    current_item.clear() # TODO maybe I want to keep it active?
 
 def user_draw_receiver(event):
+    '''takes the location of mouse click and creates an unscaled Receiver object version, redraws everything'''
     insert_at_coords = (canvas.canvasx(event.x)/scale, canvas.canvasy(event.y)/scale)
     Receiver(insert_at_coords)
     draw_all_room_entities()
 
 def bind_to_draw_source():
+    '''unbinds left click/release/motion, binds left click to appropriate function'''
     unbind_all()
     canvas.bind("<ButtonPress-1>", user_draw_source)
 
 def bind_to_draw_reflector():
+    '''unbinds left click/release/motion, binds left click/release/motion to appropriate function'''
     unbind_all()
     temp_line = canvas.bind("<ButtonPress-1>", user_draw_start_reflector)
     canvas.bind("<B1-Motion>", user_draw_move_reflector)
     canvas.bind("<ButtonRelease-1>", user_draw_end_reflector)
 
 def bind_to_draw_receiver():
+    '''unbinds left click/release/motion, binds left click to appropriate function'''
     unbind_all()
     canvas.bind("<ButtonPress-1>", user_draw_receiver)
 
 def bind_to_element_selector():
+    '''unbinds left click/release/motion, binds left click to appropriate function'''
     unbind_all()
     canvas.bind('<Button-1>', on_drawing_element_click)
 
 def unbind_all():
+    '''unbinds left click/release/motion'''
     canvas.unbind("<ButtonPress-1>")
     canvas.unbind("<B1-Motion>")
     canvas.unbind("<ButtonRelease-1>")
 
 def clear_canvas():
+    '''removes all objects from the object variable lists within Reflector/Ray/Source/Receiver classes, clears current_item/images/image_filepaths global vars, then redraws but there is nothing to redraw so blank slate.'''
     Reflector.reflectors.clear()
     Ray.rays.clear()
     Source.sources.clear()
@@ -429,6 +444,7 @@ def clear_canvas():
     draw_all_room_entities()
 
 def delete_active_item():
+    '''removes the repr of the current item from the current data then redraws the room (which will now not include that item)'''
     print(type(current_item[0]))
     current_item_internal = drawing_to_internal_data_mapping[current_item[0][0]]
     if isinstance(current_item_internal, Source):
@@ -440,6 +456,7 @@ def delete_active_item():
     draw_all_room_entities()
 
 def import_image():
+    '''handles importing an image to the background'''
     filepath = askopenfilename(filetypes=[("jpeg", "*.jpg"), ("bitmap", "*.bmp"), ("png", "*.png")])
     if not filepath:
         return
@@ -447,7 +464,8 @@ def import_image():
     image_filepaths.append(filepath)
     draw_all_room_entities()
 
-def draw_image():
+def draw_image(): # TODO clean this up
+    '''handles the actual drawing of the imported image'''
     if len(images) != 0:
         image = images[0]
         # with Image.open("/Users/craigharris/Desktop/Screen Shot 2021-05-19 at 20.54.17.png") as image:
@@ -486,7 +504,7 @@ def draw_image():
 
     images.append(tk_image)  # you need to keep a reference to the tk_image or the garbage collector removes it
 
-image_scale = 2 
+image_scale = 2
 image_filepaths = []
 images = []
 move_and_rotate_steps = [1, 1]
@@ -497,6 +515,8 @@ scale = 10
 room_size = (75.989, 45.38)
 # room_size = (120, 90) # TODO delete
 scale_and_room_size_list_for_saving = [scale, room_size]
+
+# default rm
 s1_pos = (74.007, 45.38-6.773)
 r1_pos = (5.102, 45.38-20.266)
 r2_pos = (10.824, 45.38-17.093)
@@ -542,8 +562,9 @@ window.title("this is the title2222")
 
 canvas = tkinter.Canvas(width=canvas_size[0], height=canvas_size[1], cursor="cross")
 
-bind_to_element_selector()
+bind_to_element_selector() # default set the left click to select objects
 
+#configure the frame, widgets, buttons
 window.rowconfigure(0, minsize=800, weight=1)
 window.columnconfigure(1, minsize=800, weight=1)
 fr_buttons = tkinter.Frame(window)
@@ -576,6 +597,7 @@ btn_clear_canvas = tkinter.Button(fr_buttons, text = "Clear Canvas", command=cle
 btn_delete_active_item = tkinter.Button(fr_buttons, text="Delete Active Item", command=delete_active_item)
 btn_import_image = tkinter.Button(fr_buttons, text="Import Image", command=import_image)
 
+# place buttons in grid
 btn_open.grid(row=0, column=0, columnspan=6,  sticky="ew", padx=5)
 btn_save.grid(row=1, column=0, columnspan=6,  sticky="ew", padx=5)
 spacer1.grid(row=2, column=0, columnspan=6,  sticky='ew', padx=5)
@@ -603,6 +625,7 @@ btn_clear_canvas.grid(row=23, column=0, columnspan=6, sticky='ew', padx=5)
 btn_delete_active_item.grid(row=24, column=0, columnspan=6, sticky='ew', padx=5)
 btn_import_image.grid(row=25, column=0, columnspan=6, sticky='ew', padx=5)
 
+#place widgets in grid
 fr_buttons.grid(row=0, column=0, sticky='ns')
 canvas.grid(row=0, column=1, sticky='nsew')
 
