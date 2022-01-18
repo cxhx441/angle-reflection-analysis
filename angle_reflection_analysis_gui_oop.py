@@ -638,11 +638,15 @@ class Main_Application(tkinter.Frame):
         tkinter.Frame.__init__(self, parent, *args, **kwargs) # my graphical_acoustic code did not include parent here
         self.parent = parent
 
-        # initialize buttons class
-        # initialize editor class 
+        ## initialize buttons class
+        # self.button_pane = ButtonPane(self)
 
-        # put each frame on grid
-        
+        # initialize editor class 
+        # self.edit_pane = EditPane(self)
+
+        ## put each frame on grid
+        # self.button_pane.grid(row=0, column=1, sticky='nsew')
+        # self.edit_pane.grid(row=0, column=0, sticky='ns')
 
         # create rest of gui here
 
