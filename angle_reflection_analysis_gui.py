@@ -10,12 +10,7 @@ TODO allow fractional step movements
 TODO add labels for angle/position of each reflector
 '''
 
-from os import remove
-from tkinter.constants import ACTIVE, COMMAND
-from Receiver import Receiver
-from Source import Source
-from Reflector import Reflector
-from Ray import Ray
+from geometric_elements import Reflector, Ray, Receiver, Source
 from PIL import Image, ImageDraw, ImageTk
 import math
 import tkinter
@@ -215,7 +210,10 @@ def open_file():
     if not filepath:
         return
     with open(filepath, "rb") as input_file:
+        print("trying")
         data = pickle.load(input_file)
+        print(data)
+        print("did it")
     load_pickle(data)
 
     draw_all_room_entities()
