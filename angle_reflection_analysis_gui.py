@@ -1,7 +1,7 @@
 '''
-TODO Tests?
+TODO Tests...
 TODO add better documentation
-TODO Pickle the image in the saved file.
+TODO Pickle the image in the saved file. do this by converting to string/bytes
 TODO make it so image_scale gets pickled and updated on load.
 TODO make global variable not lists.
 TODO add ability to change scale
@@ -86,28 +86,6 @@ def create_rays_2_reflector(source_obj, ref_obj):
     ray_2_end = Ray(source_obj.get_coords(), ref_obj.get_end_coords())
     return (ray_2_start, ray_2_center, ray_2_end)
 
-def angle_between_2_lines(line0, line1):
-    '''returns the angle in degrees between to lines'''
-    m0 = line0.get_slope()
-    m1 = line1.get_slope()
-    return math.degrees(math.atan((m1-m0)/(1+(m1*m0))))
-
-def get_intersection_of_two_lines(line0, line1):
-    '''returns the intersection coordinates of 2 lines. meant for use when drawing reflection rays.'''
-    #if reflector horizontal
-    if line0.get_start_coords()[1] == line0.get_end_coords()[1]:
-        print("horiz")
-        return(line1.get_start_coords()[0], line0.get_start_coords()[1])
-    #if reflector vertical
-    elif line0.get_start_coords()[0] == line0.get_end_coords()[0]:
-        print("vert")
-        return(line0.get_start_coords()[0], line1.get_start_coords()[1])
-    else:
-        m0, b0 = line0.get_slope_intercept_form()
-        m1, b1 = line1.get_slope_intercept_form()
-        x_int = (b1 - b0)/(m0-m1)
-        return (x_int, m0*x_int + b0)
-
 def update_reflected_rays():
     '''generates 3 Ray objects from each source to each reflector. leading to each end and middle of the reflectors.'''
     Ray.rays.clear()
@@ -124,7 +102,8 @@ def update_reflected_rays():
             #translate so one point starts on source
             ray_temp.move(source.get_coords())
             #extend to intersection of ref
-            intersection = get_intersection_of_two_lines(reflector, ray_temp)
+                # intersection = get_intersection_of_two_lines(reflector, ray_temp)
+            intersection = reflector.get_intersection_of_2_lines(ray_temp)
             ray_temp.set_end_coords(intersection)
             # rotate
             ray_temp.rotate(pivot=ray_temp.get_end_coords(), angle=math.pi)

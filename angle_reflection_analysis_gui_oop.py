@@ -10,12 +10,7 @@ TODO allow fractional step movements
 TODO add labels for angle/position of each reflector
 '''
 
-from os import remove
-from tkinter.constants import ACTIVE, COMMAND
-from Receiver import Receiver
-from Source import Source
-from Reflector import Reflector
-from Ray import Ray
+from geometric_elements import Reflector, Ray, Receiver, Source
 from PIL import Image, ImageDraw, ImageTk
 import math
 import tkinter
@@ -641,7 +636,7 @@ class Main_Application(tkinter.Frame):
         ## initialize buttons class
         # self.button_pane = ButtonPane(self)
 
-        # initialize editor class 
+        # initialize editor class
         # self.edit_pane = EditPane(self)
 
         ## put each frame on grid
@@ -652,7 +647,7 @@ class Main_Application(tkinter.Frame):
 
 if __name__ == "__main__":
     main_window = tkinter.Tk()
-    Main_Application(main_window).pack(side='top', fill="both", expand=True) # TODO what does this do? 
+    Main_Application(main_window).pack(side='top', fill="both", expand=True) # TODO what does this do?
     main_window.title("here is the title")
     main_window.geometry('+0+0') # puts window at top left
     main_window.mainloop()
