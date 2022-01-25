@@ -1,11 +1,9 @@
 import math
 
-class Reflector():
-    reflectors = []
+class Line():
     def __init__(self, start_coords, end_coords) -> None:
         self.x0, self.y0 = start_coords
         self.x1, self.y1 = end_coords
-        Reflector.reflectors.append(self)
 
     def get_start_coords(self):
         return (self.x0, self.y0)
@@ -86,9 +84,6 @@ class Reflector():
             self.y0 += new_y_mid
             self.y1 += new_y_mid
 
-    def copy(self):
-        return Reflector(self.get_start_coords(), self.get_end_coords())
-
     def move(self, destination_coord):
         movement_coords = (destination_coord[0] - self.get_start_coords()[0], destination_coord[1] - self.get_start_coords()[1])
         new_start_coords = (self.get_start_coords()[0] + movement_coords[0], self.get_start_coords()[1] + movement_coords[1])
@@ -96,13 +91,64 @@ class Reflector():
         self.set_start_coords(new_start_coords)
         self.set_end_coords(new_end_coords)
 
-
     def move_vertical(self, y_amount):
         self.y0 += y_amount
         self.y1 += y_amount
     def move_horizontal(self, x_amount):
         self.x0 += x_amount
         self.x1 += x_amount
+
+class Ray(Line): 
+    rays = []
+    def __init__(self, start_coords, end_coords):
+        super().__init__(start_coords, end_coords)
+        Ray.rays.append(self)
+    
+    def copy(self):
+        return Ray(self.get_start_coords(), self.get_end_coords())
+
+    def get_reflected_ray(self, ray_obj, angle):
+        return Ray(self.get_start_coords(), self.get_end_coords())
+
+    def extend(self, room_size):
+        x0, y0 = self.get_start_coords()
+        x1, y1 = self.get_end_coords()
+        # going left
+        if x0 > x1:
+            x_towidth = 0
+            m_towidth, b_towidth = self.get_slope_intercept_form()
+            y_towidth = m_towidth*x_towidth + b_towidth
+        # going right
+        elif x0 < x1:
+            x_towidth = room_size[0]
+            m_towidth, b_towidth = self.get_slope_intercept_form()
+            y_towidth = m_towidth*x_towidth + b_towidth
+        #going down
+        if y0 < y1:
+            y_toheight = room_size[1]
+            m_toheight, b_toheight = self.get_slope_intercept_form()
+            x_toheight = (y_toheight - b_toheight)/m_toheight
+        #going up
+        elif y0 > y1:
+            y_toheight = 0
+            m_toheight, b_toheight = self.get_slope_intercept_form()
+            x_toheight = (y_toheight - b_toheight)/m_toheight
+
+        len_toheight = ((y_toheight-y0)**2 + (x_toheight-x0)**2)**0.5
+        len_towidth = ((y_towidth-y0)**2 + (x_towidth-x0)**2)**0.5
+        if len_toheight < len_towidth:
+            self.set_end_coords((x_toheight, y_toheight))
+        else:
+            self.set_end_coords((x_towidth, y_towidth))
+
+class Reflector(Line):
+    reflectors = []
+    def __init__(self, start_coords, end_coords):
+        super().__init__(start_coords, end_coords)
+        Reflector.reflectors.append(self)
+
+    def copy(self):
+        return Reflector(self.get_start_coords(), self.get_end_coords())
 
     def move_up(self, y):
         self.move_vertical(-y)
@@ -115,27 +161,35 @@ class Reflector():
 
     def move_left(self, x):
         self.move_horizontal(-x)
-    # def rotate(self, pivot_point, angle):
-    #     if pivot_point == self.get_start_coords():
-    #         x0 = pivot_point[0]
-    #         y0 = pivot_point[1]
-    #         x1 = self.get_end_coords()[0]
-    #         y1 = self.get_end_coords()[1]
-    #         x3 = math.cos(angle)*(x1-x0) - math.sin(angle)*(y1-y0) + x1
-    #         y3 = math.sin(angle)*(x1-x0) + math.cos(angle)*(y1-y0) + x1
-    #         self.x1 = x3
-    #         self.y1 = y3
-    #     elif pivot_point == self.get_end_coords():
-    #         x0 = pivot_point[0]
-    #         y0 = pivot_point[1]
-    #         x1 = self.get_start_coords()[0]
-    #         y1 = self.get_start_coords()[1]
-    #         x3 = math.cos(angle)*(x1-x0) - math.sin(angle)*(y1-y0) + x1
-    #         y3 = math.sin(angle)*(x1-x0) + math.cos(angle)*(y1-y0) + x1
-    #         self.x0 = x3
-    #         self.y0 = y3
-    #     elif pivot_point == self.get_center_coords():
-    #         pass
-    #     else:
-    #         print("error")
 
+
+class Point():
+    def __init__(self, coords) -> None:
+        self.x_pos, self.y_pos = coords
+
+    def get_coords(self):
+        return self.x_pos, self.y_pos
+
+    def move_up(self, y):
+        self.y_pos -= y
+
+    def move_down(self, y):
+        self.y_pos += y
+
+    def move_right(self, x):
+        self.x_pos += x
+
+    def move_left(self, x):
+        self.x_pos -= x
+
+class Receiver(Point):
+    receivers = []
+    def __init__(self, coords) -> None:
+        super().__init__(coords)
+        Receiver.receivers.append(self)
+
+class Source(Point):
+    sources = []
+    def __init__(self, coords) -> None:
+        super().__init__(coords)
+        Source.sources.append(self)     
