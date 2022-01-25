@@ -210,10 +210,7 @@ def open_file():
     if not filepath:
         return
     with open(filepath, "rb") as input_file:
-        print("trying")
         data = pickle.load(input_file)
-        print(data)
-        print("did it")
     load_pickle(data)
 
     draw_all_room_entities()
