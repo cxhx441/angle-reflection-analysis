@@ -1,5 +1,7 @@
 import math
 
+from pyparsing import line
+
 class Line():
     def __init__(self, start_coords, end_coords) -> None:
         self.x0, self.y0 = start_coords
@@ -98,12 +100,36 @@ class Line():
         self.x0 += x_amount
         self.x1 += x_amount
 
-class Ray(Line): 
+    def angle_between_2_lines(self, other_line: type['Line']) -> float:
+        '''returns the angle in degrees between to lines'''
+        m0 = self.get_slope()
+        m1 = other_line.get_slope()
+        return math.degrees(math.atan((m1-m0)/(1+(m1*m0))))
+
+    def get_intersection_of_2_lines(self, other_line: type['Line']) -> tuple[float, float]:
+        '''returns the intersection coordinates of 2 lines. meant for use when drawing reflection rays.'''
+        #if reflector horizontal
+        if self.get_start_coords()[1] == self.get_end_coords()[1]:
+            print("horiz")
+            return(other_line.get_start_coords()[0], self.get_start_coords()[1])
+        #if reflector vertical
+        elif self.get_start_coords()[0] == self.get_end_coords()[0]:
+            print("vert")
+            return(self.get_start_coords()[0], other_line.get_start_coords()[1])
+        else:
+            m0, b0 = self.get_slope_intercept_form()
+            m1, b1 = other_line.get_slope_intercept_form()
+            x_int = (b1 - b0)/(m0-m1)
+            return (x_int, m0*x_int + b0)
+
+
+
+class Ray(Line):
     rays = []
     def __init__(self, start_coords, end_coords):
         super().__init__(start_coords, end_coords)
         Ray.rays.append(self)
-    
+
     def copy(self):
         return Ray(self.get_start_coords(), self.get_end_coords())
 
@@ -192,4 +218,4 @@ class Source(Point):
     sources = []
     def __init__(self, coords) -> None:
         super().__init__(coords)
-        Source.sources.append(self)     
+        Source.sources.append(self)
