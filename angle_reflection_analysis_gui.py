@@ -168,7 +168,7 @@ def draw_all_room_entities():
 
 def save_file():
     '''pickles a dict containing: scale, roomsize, sources, reflectors, receivers, image_filepath'''
-    filepath = asksaveasfilename(defaultextension="pickle")
+    filepath = asksaveasfilename(title='Save As...', defaultextension=".pickle")
     if not filepath:
         return
 
@@ -180,12 +180,13 @@ def save_file():
     data['receivers'] = Receiver.receivers
     if len(image_filepaths) != 0:
         data['image_filepath'] = image_filepaths[0]
+        # data['image'] = 
     with open(filepath, 'wb') as output_file:
         pickle.dump(data, output_file)
 
 def open_file():
     '''choose the file to open, load json, draw all room entities'''
-    filepath = askopenfilename(filetypes=[("Pickle Files", "*.pickle")])
+    filepath = askopenfilename(title='Open Pickle File...', filetypes=[("Pickle Files", "*.pickle")])
     if not filepath:
         return
     with open(filepath, "rb") as input_file:
