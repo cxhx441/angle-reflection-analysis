@@ -1,5 +1,4 @@
 import tkinter as tk
-from turtle import bgcolor
 
 
 class DrawingArea(tk.Frame):
@@ -8,7 +7,7 @@ class DrawingArea(tk.Frame):
     The drawings area frame
     """
     def __init__(self, container):
-        super().__init__(container)
+        super().__init__(container, cursor="dot")
         
         # create sunken look
         self['relief'] = 'sunken'
@@ -20,7 +19,8 @@ class DrawingArea(tk.Frame):
     def _create_widgits(self):
         pass
 
-class FileManagementButtonFrame(tk.Frame):
+
+class FileManagementButtonFrame(tk.LabelFrame):
     """
     TODO
     Open
@@ -28,11 +28,7 @@ class FileManagementButtonFrame(tk.Frame):
     Import Image
     """
     def __init__(self, container):
-        super().__init__(container)
-
-        self['relief'] = 'groove'
-        self['borderwidth'] = 2
-
+        super().__init__(container, text="File Management")
         self._create_widgits()
 
     def _create_widgits(self):
@@ -44,7 +40,7 @@ class FileManagementButtonFrame(tk.Frame):
         btn_save_as.grid(row=1, column=0, sticky='ew')
         btn_import_image.grid(row=2, column=0, sticky='ew')
 
-class DrawingElementsButtonsFrame(tk.Frame):
+class DrawingElementsButtonsFrame(tk.LabelFrame):
     """
     TODO
     Organizes the buttons:
@@ -56,11 +52,7 @@ class DrawingElementsButtonsFrame(tk.Frame):
     Clear Canvas
     """
     def __init__(self, container):
-        super().__init__(container)
-        
-        self['relief'] = 'groove'
-        self['borderwidth'] = 2
-
+        super().__init__(container, text="Draw Tools")
         self._create_widgits()
 
     def _create_widgits(self):
@@ -71,15 +63,19 @@ class DrawingElementsButtonsFrame(tk.Frame):
         btn_delete_active_element = tk.Button(self, text = 'Delete Active Element')
         btn_clear_drawing_area = tk.Button(self, text = 'Clear Drawing Area')
 
-        btn_draw_source.grid(row=0, column=0, sticky='ew')
-        btn_draw_reflector.grid(row=1, column=0, sticky='ew')
-        btn_draw_receiver.grid(row=2, column=0, sticky='ew')
-        btn_select.grid(row=3, column=0, sticky='ew')
-        btn_delete_active_element.grid(row=4, column=0, sticky='ew')
-        btn_clear_drawing_area.grid(row=5, column=0, sticky='ew')
+        btn_draw_source.grid(row=0, column=0)
+        btn_draw_reflector.grid(row=1, column=0)
+        btn_draw_receiver.grid(row=2, column=0)
+        btn_select.grid(row=3, column=0)
+        btn_delete_active_element.grid(row=4, column=0)
+        btn_clear_drawing_area.grid(row=5, column=0)
 
+        # give all buttons the sticky='EW'
+        for child in self.winfo_children():
+            if child.winfo_class() in ('Button'):
+                child.grid_configure(sticky='EW')
 
-class DisplacingElementsButtonsFrame(tk.Frame):
+class DisplacingElementsButtonsFrame(tk.LabelFrame):
     """
     TODO
     Organizes the buttons:
@@ -89,11 +85,7 @@ class DisplacingElementsButtonsFrame(tk.Frame):
     Move Down
     """
     def __init__(self, container):
-        super().__init__(container)
-
-        self['relief'] = 'groove'
-        self['borderwidth'] = 2
-
+        super().__init__(container, text='Move Tools')
         self._create_widgits()
 
     def _create_widgits(self):
@@ -102,12 +94,17 @@ class DisplacingElementsButtonsFrame(tk.Frame):
         btn_move_right = tk.Button(self, text='Move Right')
         btn_move_down = tk.Button(self, text='Move Down')
         
-        btn_move_up.grid(row=0, columnspan=2, sticky='ew')
-        btn_move_left.grid(row=1, column=0, sticky='ew')
-        btn_move_right.grid(row=1, column=1, sticky='ew')
-        btn_move_down.grid(row=2, columnspan=2, sticky='ew')
+        btn_move_up.grid(row=0, columnspan=2)
+        btn_move_left.grid(row=1, column=0)
+        btn_move_right.grid(row=1, column=1)
+        btn_move_down.grid(row=2, columnspan=2)
 
-class RotatingElementsButtonsFrame(tk.Frame):
+        # give all buttons the sticky='EW'
+        for child in self.winfo_children():
+            if child.winfo_class() in ('Button'):
+                child.grid_configure(sticky='EW')
+
+class RotatingElementsButtonsFrame(tk.LabelFrame):
     """
     TODO
     Organizes the buttons:
@@ -118,11 +115,7 @@ class RotatingElementsButtonsFrame(tk.Frame):
     Rotate Counterclockwise
     """
     def __init__(self, container):
-        super().__init__(container)
-
-        self['relief'] = 'groove'
-        self['borderwidth'] = 2
-
+        super().__init__(container, text='Rotate Tools')
         self._create_widgits()
 
     def _create_widgits(self):
@@ -132,14 +125,19 @@ class RotatingElementsButtonsFrame(tk.Frame):
         btn_rotate_clockwise = tk.Button(self, text='Rotate Clockwise')
         btn_rotate_counterclockwise = tk.Button(self, text='Rotate Counterclockwise')
 
-        btn_L.grid(row=0, column=0, sticky='ew')
-        btn_C.grid(row=0, column=1, sticky='ew')
-        btn_R.grid(row=0, column=2, sticky='ew')
-        btn_rotate_clockwise.grid(row=1, columnspan=3, sticky='ew')
-        btn_rotate_counterclockwise.grid(row=2, columnspan=3, sticky='ew')
+        btn_L.grid(row=0, column=0)
+        btn_C.grid(row=0, column=1)
+        btn_R.grid(row=0, column=2)
+        btn_rotate_clockwise.grid(row=1, columnspan=3)
+        btn_rotate_counterclockwise.grid(row=2, columnspan=3)
+
+        # give all buttons the sticky='EW'
+        for child in self.winfo_children():
+            if child.winfo_class() in ('Button'):
+                child.grid_configure(sticky='EW')
 
 
-class UpdateStepMoveRotateButtonsFrame(tk.Frame):
+class UpdateStepMoveRotateButtonsFrame(tk.LabelFrame):
     """
     TODO
     Update Move Step (ft)
@@ -148,11 +146,7 @@ class UpdateStepMoveRotateButtonsFrame(tk.Frame):
     label for dispalaying value
     """
     def __init__(self, container):
-        super().__init__(container)
-
-        self['relief'] = 'groove'
-        self['borderwidth'] = 2
-
+        super().__init__(container, text='Parameters')
         self._create_widgits()
 
     def _create_widgits(self):
@@ -161,10 +155,15 @@ class UpdateStepMoveRotateButtonsFrame(tk.Frame):
         entry_angle_move_step = tk.Entry(self)
         label_for_angle_move_step = tk.Label(self, text=f'GET CUR STEPS')
 
-        btn_update_move_step.grid(row=0, sticky='ew')
-        btn_update_angle_step.grid(row=1, sticky='ew')
-        entry_angle_move_step.grid(row=2, sticky='ew')
-        label_for_angle_move_step.grid(row=3, sticky='ew')
+        btn_update_move_step.grid(row=0)
+        btn_update_angle_step.grid(row=1)
+        entry_angle_move_step.grid(row=2)
+        label_for_angle_move_step.grid(row=3)
+
+        # give all widgets the sticky='EW'
+        for child in self.winfo_children():
+            if child.winfo_class() in ('Button', 'Entry', 'Label'):
+                child.grid_configure(sticky='EW')
 
         entry_angle_move_step.insert(0, "input num val & click update")
         entry_angle_move_step.focus()
@@ -172,7 +171,6 @@ class UpdateStepMoveRotateButtonsFrame(tk.Frame):
 class ButtonsFrameArea(tk.Frame):
     def __init__(self, container):
         super().__init__(container)
-
         self._create_widgets()
     
     def _create_widgets(self):
@@ -182,11 +180,16 @@ class ButtonsFrameArea(tk.Frame):
         rotating_elements_buttons_frame = RotatingElementsButtonsFrame(self)
         update_step_move_rotate_buttons_frame = UpdateStepMoveRotateButtonsFrame(self)
 
-        file_management_button_frame.grid(column=0, row=0, sticky='EW', pady=5)
-        drawing_elements_buttons_frame.grid(column=0, row=1, sticky='EW', pady=5)
-        displacing_elements_buttons_frame.grid(column=0, row=2, sticky='EW', pady=5)
-        rotating_elements_buttons_frame.grid(column=0, row=3, sticky='EW', pady=5)
-        update_step_move_rotate_buttons_frame.grid(column=0, row=4, sticky='EW', pady=5)
+        file_management_button_frame.grid(column=0, row=0)
+        drawing_elements_buttons_frame.grid(column=0, row=1)
+        displacing_elements_buttons_frame.grid(column=0, row=2)
+        rotating_elements_buttons_frame.grid(column=0, row=3)
+        update_step_move_rotate_buttons_frame.grid(column=0, row=4)
+
+        # give all Label Frames the sticky='EW' and pady= update
+        for child in self.winfo_children():
+            if child.winfo_class() == 'Labelframe':
+                child.grid_configure(sticky='EW', pady=10)
 
 class App(tk.Tk):
     # the main window. 
