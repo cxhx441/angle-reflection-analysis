@@ -1,0 +1,224 @@
+import tkinter as tk
+from turtle import bgcolor
+
+
+class DrawingArea(tk.Frame):
+    """
+    TODO
+    The drawings area frame
+    """
+    def __init__(self, container):
+        super().__init__(container)
+        
+        # create sunken look
+        self['relief'] = 'sunken'
+        self['borderwidth'] = 2
+        self['bg'] = 'gray'
+
+        self._create_widgits()
+
+    def _create_widgits(self):
+        pass
+
+class FileManagementButtonFrame(tk.Frame):
+    """
+    TODO
+    Open
+    Save As...
+    Import Image
+    """
+    def __init__(self, container):
+        super().__init__(container)
+
+        self['relief'] = 'groove'
+        self['borderwidth'] = 2
+
+        self._create_widgits()
+
+    def _create_widgits(self):
+        btn_open = tk.Button(self, text = 'Open...')
+        btn_save_as = tk.Button(self, text = 'Save As...')
+        btn_import_image = tk.Button(self, text = 'Import Image...')
+
+        btn_open.grid(row=0, column=0, sticky='ew')
+        btn_save_as.grid(row=1, column=0, sticky='ew')
+        btn_import_image.grid(row=2, column=0, sticky='ew')
+
+class DrawingElementsButtonsFrame(tk.Frame):
+    """
+    TODO
+    Organizes the buttons:
+    Draw Source
+    Draw Reflector
+    Draw Receiver
+    Select
+    Delete Active Item
+    Clear Canvas
+    """
+    def __init__(self, container):
+        super().__init__(container)
+        
+        self['relief'] = 'groove'
+        self['borderwidth'] = 2
+
+        self._create_widgits()
+
+    def _create_widgits(self):
+        btn_draw_source = tk.Button(self, text = 'Draw Source')
+        btn_draw_reflector = tk.Button(self, text = 'Draw Reflector')
+        btn_draw_receiver = tk.Button(self, text = 'Draw Receiver')
+        btn_select = tk.Button(self, text = 'Select Element')
+        btn_delete_active_element = tk.Button(self, text = 'Delete Active Element')
+        btn_clear_drawing_area = tk.Button(self, text = 'Clear Drawing Area')
+
+        btn_draw_source.grid(row=0, column=0, sticky='ew')
+        btn_draw_reflector.grid(row=1, column=0, sticky='ew')
+        btn_draw_receiver.grid(row=2, column=0, sticky='ew')
+        btn_select.grid(row=3, column=0, sticky='ew')
+        btn_delete_active_element.grid(row=4, column=0, sticky='ew')
+        btn_clear_drawing_area.grid(row=5, column=0, sticky='ew')
+
+
+class DisplacingElementsButtonsFrame(tk.Frame):
+    """
+    TODO
+    Organizes the buttons:
+    Move Up
+    Move Left
+    Move Right
+    Move Down
+    """
+    def __init__(self, container):
+        super().__init__(container)
+
+        self['relief'] = 'groove'
+        self['borderwidth'] = 2
+
+        self._create_widgits()
+
+    def _create_widgits(self):
+        btn_move_up = tk.Button(self, text='Move Up')
+        btn_move_left = tk.Button(self, text='Move Left')
+        btn_move_right = tk.Button(self, text='Move Right')
+        btn_move_down = tk.Button(self, text='Move Down')
+        
+        btn_move_up.grid(row=0, columnspan=2, sticky='ew')
+        btn_move_left.grid(row=1, column=0, sticky='ew')
+        btn_move_right.grid(row=1, column=1, sticky='ew')
+        btn_move_down.grid(row=2, columnspan=2, sticky='ew')
+
+class RotatingElementsButtonsFrame(tk.Frame):
+    """
+    TODO
+    Organizes the buttons:
+    L
+    C
+    R
+    Rotate Clockwise
+    Rotate Counterclockwise
+    """
+    def __init__(self, container):
+        super().__init__(container)
+
+        self['relief'] = 'groove'
+        self['borderwidth'] = 2
+
+        self._create_widgits()
+
+    def _create_widgits(self):
+        btn_L = tk.Button(self, text='L')
+        btn_C = tk.Button(self, text='C')
+        btn_R = tk.Button(self, text='R')
+        btn_rotate_clockwise = tk.Button(self, text='Rotate Clockwise')
+        btn_rotate_counterclockwise = tk.Button(self, text='Rotate Counterclockwise')
+
+        btn_L.grid(row=0, column=0, sticky='ew')
+        btn_C.grid(row=0, column=1, sticky='ew')
+        btn_R.grid(row=0, column=2, sticky='ew')
+        btn_rotate_clockwise.grid(row=1, columnspan=3, sticky='ew')
+        btn_rotate_counterclockwise.grid(row=2, columnspan=3, sticky='ew')
+
+
+class UpdateStepMoveRotateButtonsFrame(tk.Frame):
+    """
+    TODO
+    Update Move Step (ft)
+    Update Angle Step (deg)
+    input_box for value
+    label for dispalaying value
+    """
+    def __init__(self, container):
+        super().__init__(container)
+
+        self['relief'] = 'groove'
+        self['borderwidth'] = 2
+
+        self._create_widgits()
+
+    def _create_widgits(self):
+        btn_update_move_step = tk.Button(self, text='Update Move Step (ft)')
+        btn_update_angle_step = tk.Button(self, text='Update Angle Step (ft)')
+        entry_angle_move_step = tk.Entry(self)
+        label_for_angle_move_step = tk.Label(self, text=f'GET CUR STEPS')
+
+        btn_update_move_step.grid(row=0, sticky='ew')
+        btn_update_angle_step.grid(row=1, sticky='ew')
+        entry_angle_move_step.grid(row=2, sticky='ew')
+        label_for_angle_move_step.grid(row=3, sticky='ew')
+
+        entry_angle_move_step.insert(0, "input num val & click update")
+        entry_angle_move_step.focus()
+
+class ButtonsFrameArea(tk.Frame):
+    def __init__(self, container):
+        super().__init__(container)
+
+        self._create_widgets()
+    
+    def _create_widgets(self):
+        file_management_button_frame = FileManagementButtonFrame(self)
+        drawing_elements_buttons_frame = DrawingElementsButtonsFrame(self)
+        displacing_elements_buttons_frame = DisplacingElementsButtonsFrame(self)
+        rotating_elements_buttons_frame = RotatingElementsButtonsFrame(self)
+        update_step_move_rotate_buttons_frame = UpdateStepMoveRotateButtonsFrame(self)
+
+        file_management_button_frame.grid(column=0, row=0, sticky='EW', pady=5)
+        drawing_elements_buttons_frame.grid(column=0, row=1, sticky='EW', pady=5)
+        displacing_elements_buttons_frame.grid(column=0, row=2, sticky='EW', pady=5)
+        rotating_elements_buttons_frame.grid(column=0, row=3, sticky='EW', pady=5)
+        update_step_move_rotate_buttons_frame.grid(column=0, row=4, sticky='EW', pady=5)
+
+class App(tk.Tk):
+    # the main window. 
+    def __init__(self):
+        super().__init__()
+
+        self.title("Angle Reflection Analysis")
+
+        # position center
+        app_width = self.winfo_screenwidth()//2
+        app_height = self.winfo_screenheight()//2
+        app_width_pad = f'{self.winfo_screenwidth()//2 - app_width//2}'  # for center
+        app_height_pad = f'{self.winfo_screenheight()//2 - app_height//2}'  # for center
+        screen_geometry_str = f'{app_width}x{app_height}+{app_width_pad}+{app_height_pad}'
+        self.geometry(screen_geometry_str)
+        
+        # set columns / row sizes
+        self.columnconfigure(0, weight=0)
+        self.columnconfigure(1, weight=3)
+
+        self._create_widgits()
+
+    def _create_widgits(self):
+
+        # add frames
+        drawing_area = DrawingArea(self)
+        buttons_area = ButtonsFrameArea(self)
+
+        # place frames on grid
+        drawing_area.grid(column=1, row=0, sticky="NSEW", padx=5, pady=5)  # TODO is rowspan the right way to do this? 
+        buttons_area.grid(column=0, row=0, sticky="ew", padx=5, pady=5)  # TODO is rowspan the right way to do this? 
+
+if __name__ == '__main__':
+    app = App()
+    app.mainloop()
