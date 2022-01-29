@@ -79,6 +79,7 @@ def get_draw_rect_coords(obj, diagonal_len):
     x, y = (el*scale for el in (x, y))
     return (x-diagonal_len, y-diagonal_len, x+diagonal_len, y+diagonal_len)
 
+""" USED """
 def create_rays_2_reflector(source_obj, ref_obj):
     '''creates 3 Ray objects originating from the source and leading to each end + the middle of the specified Reflector object. NOT scaled.'''
     ray_2_start = Ray(source_obj.get_coords(), ref_obj.get_start_coords())
@@ -86,6 +87,7 @@ def create_rays_2_reflector(source_obj, ref_obj):
     ray_2_end = Ray(source_obj.get_coords(), ref_obj.get_end_coords())
     return (ray_2_start, ray_2_center, ray_2_end)
 
+""" USED """
 def update_reflected_rays():
     '''generates 3 Ray objects from each source to each reflector. leading to each end and middle of the reflectors.'''
     Ray.rays.clear()

@@ -1,4 +1,5 @@
 import tkinter as tk
+from Room import Room
 
 
 class DrawingArea(tk.Frame):
@@ -14,18 +15,18 @@ class DrawingArea(tk.Frame):
         self['borderwidth'] = 2
         self['bg'] = 'gray'
 
-        self._create_widgits()
+        self._draw_room()
 
-    def _create_widgits(self):
+    def _draw_room(self):
         pass
 
 
 class FileManagementButtonFrame(tk.LabelFrame):
     """
-    TODO
-    Open
-    Save As...
-    Import Image
+    Handles the follow widgets:
+        Open
+        Save As...
+        Import Image
     """
     def __init__(self, container):
         super().__init__(container, text="File Management")
@@ -42,14 +43,13 @@ class FileManagementButtonFrame(tk.LabelFrame):
 
 class DrawingElementsButtonsFrame(tk.LabelFrame):
     """
-    TODO
-    Organizes the buttons:
-    Draw Source
-    Draw Reflector
-    Draw Receiver
-    Select
-    Delete Active Item
-    Clear Canvas
+    Handles the follow widgets:
+        Draw Source
+        Draw Reflector
+        Draw Receiver
+        Select
+        Delete Active Item
+        Clear Canvas
     """
     def __init__(self, container):
         super().__init__(container, text="Draw Tools")
@@ -77,12 +77,12 @@ class DrawingElementsButtonsFrame(tk.LabelFrame):
 
 class DisplacingElementsButtonsFrame(tk.LabelFrame):
     """
-    TODO
-    Organizes the buttons:
-    Move Up
-    Move Left
-    Move Right
-    Move Down
+    Handles the follow widgets:
+        Organizes the buttons:
+        Move Up
+        Move Left
+        Move Right
+        Move Down
     """
     def __init__(self, container):
         super().__init__(container, text='Move Tools')
@@ -106,13 +106,12 @@ class DisplacingElementsButtonsFrame(tk.LabelFrame):
 
 class RotatingElementsButtonsFrame(tk.LabelFrame):
     """
-    TODO
-    Organizes the buttons:
-    L
-    C
-    R
-    Rotate Clockwise
-    Rotate Counterclockwise
+    Handles the follow widgets:
+        L
+        C
+        R
+        Rotate Clockwise
+        Rotate Counterclockwise
     """
     def __init__(self, container):
         super().__init__(container, text='Rotate Tools')
@@ -139,11 +138,11 @@ class RotatingElementsButtonsFrame(tk.LabelFrame):
 
 class UpdateStepMoveRotateButtonsFrame(tk.LabelFrame):
     """
-    TODO
-    Update Move Step (ft)
-    Update Angle Step (deg)
-    input_box for value
-    label for dispalaying value
+    Handles the follow widgets:
+        Update Move Step (ft)
+        Update Angle Step (deg)
+        input_box for value
+        label for dispalaying value
     """
     def __init__(self, container):
         super().__init__(container, text='Parameters')
@@ -169,6 +168,9 @@ class UpdateStepMoveRotateButtonsFrame(tk.LabelFrame):
         entry_angle_move_step.focus()
 
 class ButtonsFrameArea(tk.Frame):
+    """
+    Combines all separate button frames into one frame
+    """
     def __init__(self, container):
         super().__init__(container)
         self._create_widgets()
@@ -212,8 +214,10 @@ class App(tk.Tk):
 
         self._create_widgits()
 
-    def _create_widgits(self):
+        self._load_default_room()
 
+    def _create_widgits(self):
+        """ initializes the buttons and drawings area widgets """
         # add frames
         drawing_area = DrawingArea(self)
         buttons_area = ButtonsFrameArea(self)
@@ -221,6 +225,16 @@ class App(tk.Tk):
         # place frames on grid
         drawing_area.grid(column=1, row=0, sticky="NSEW", padx=5, pady=5)  # TODO is rowspan the right way to do this? 
         buttons_area.grid(column=0, row=0, sticky="ew", padx=5, pady=5)  # TODO is rowspan the right way to do this? 
+    
+    def _load_default_room(self):
+        """ initializes a default room """
+        self.room = Room(100, 30)
+        self.room.add_source((5, 25))
+        self.room.add_reflector((45, 25), (55, 30))
+        self.room.add_receiver((95, 25))
+
+        self.canvas = tk.Canvas(width=self.room.get_length(), height=self.room.get_height(), cursor="cross")
+
 
 if __name__ == '__main__':
     app = App()

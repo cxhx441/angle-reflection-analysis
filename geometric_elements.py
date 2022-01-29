@@ -1,6 +1,5 @@
 import math
 
-from pyparsing import line
 
 class Line():
     def __init__(self, start_coords, end_coords) -> None:
@@ -125,10 +124,8 @@ class Line():
 
 
 class Ray(Line):
-    rays = []
     def __init__(self, start_coords, end_coords):
         super().__init__(start_coords, end_coords)
-        Ray.rays.append(self)
 
     def copy(self):
         return Ray(self.get_start_coords(), self.get_end_coords())
@@ -137,6 +134,9 @@ class Ray(Line):
         return Ray(self.get_start_coords(), self.get_end_coords())
 
     def extend(self, room_size):
+        """
+        extends ray to edge of room
+        """
         x0, y0 = self.get_start_coords()
         x1, y1 = self.get_end_coords()
         # going left
@@ -168,10 +168,8 @@ class Ray(Line):
             self.set_end_coords((x_towidth, y_towidth))
 
 class Reflector(Line):
-    reflectors = []
     def __init__(self, start_coords, end_coords):
         super().__init__(start_coords, end_coords)
-        Reflector.reflectors.append(self)
 
     def copy(self):
         return Reflector(self.get_start_coords(), self.get_end_coords())
@@ -209,13 +207,9 @@ class Point():
         self.x_pos -= x
 
 class Receiver(Point):
-    receivers = []
     def __init__(self, coords) -> None:
         super().__init__(coords)
-        Receiver.receivers.append(self)
 
 class Source(Point):
-    sources = []
     def __init__(self, coords) -> None:
         super().__init__(coords)
-        Source.sources.append(self)
