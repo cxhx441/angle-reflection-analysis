@@ -10,6 +10,7 @@ class Room:
         self._rays = list()
         self._reflectors = set()
         self._receivers = set()
+        self._image = None
 
     # adders
     def add_source(self, coords):
@@ -83,4 +84,10 @@ class Room:
 
     def get_receivers(self):
         return self._receivers
+
+    def get_image(self):
+        return self._image
     
+    #setters
+    def set_image(self, image):
+        self._image = image

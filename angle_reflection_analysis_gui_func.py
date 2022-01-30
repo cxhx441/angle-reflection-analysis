@@ -145,6 +145,7 @@ def draw_rays():
             this_id = canvas.create_line(get_draw_line_coords(this_ray), fill=cur_color, width=3)
             drawing_to_internal_data_mapping[this_id] = this_ray
 
+""" USED (mostly) """
 def draw_all_room_entities():
     '''clears the current item, canvas, mappings between drawing/internal data, images. Then redraws from Source.sources, Reflector.reflectors, Receiver.receivers, Ray.rays, any image file available'''
     current_item.clear()
@@ -170,7 +171,7 @@ def draw_all_room_entities():
     update_reflected_rays()
     draw_rays()
 
-def save_file():
+def on_save_file_button():
     '''pickles a dict containing: scale, roomsize, sources, reflectors, receivers, image_filepath'''
     filepath = asksaveasfilename(title='Save As...', defaultextension=".pickle")
     if not filepath:
@@ -188,7 +189,7 @@ def save_file():
     with open(filepath, 'wb') as output_file:
         pickle.dump(data, output_file)
 
-def open_file():
+def on_open_file_button():
     '''choose the file to open, load json, draw all room entities'''
     filepath = askopenfilename(title='Open Pickle File...', filetypes=[("Pickle Files", "*.pickle")])
     if not filepath:
@@ -547,8 +548,8 @@ bind_to_element_selector() # default set the left click to select objects
 window.rowconfigure(0, minsize=800, weight=1)
 window.columnconfigure(1, minsize=800, weight=1)
 fr_buttons = tkinter.Frame(window)
-btn_open = tkinter.Button(fr_buttons, text='Open', command=open_file)
-btn_save = tkinter.Button(fr_buttons, text='Save As...', command=save_file)
+btn_open = tkinter.Button(fr_buttons, text='Open', command=on_open_file_button)
+btn_save = tkinter.Button(fr_buttons, text='Save As...', command=on_save_file_button)
 spacer1 = tkinter.Label(fr_buttons, text='')
 btn_draw_source = tkinter.Button(fr_buttons, text='Draw Source', command=bind_to_draw_source)
 btn_draw_reflector = tkinter.Button(fr_buttons, text='Draw Reflector', command=bind_to_draw_reflector)
