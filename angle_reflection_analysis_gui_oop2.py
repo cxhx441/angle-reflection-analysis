@@ -1,15 +1,16 @@
 import tkinter as tk
 from Room import Room
+from geometric_elements import Ray
 
 
-class DrawingArea(tk.Frame):
+class DrawingArea(tk.Canvas):
     """
     TODO
     The drawings area frame
     """
     def __init__(self, container):
         super().__init__(container, cursor="dot")
-        
+        self.container = container
         # create sunken look
         self['relief'] = 'sunken'
         self['borderwidth'] = 2
@@ -18,6 +19,61 @@ class DrawingArea(tk.Frame):
         self._draw_room()
 
     def _draw_room(self):
+
+        self._draw_image()
+
+        diagonal_len = 20
+        print(self.container.test_var)
+        for source in self.container.room.get_sources():
+            this_id = self.create_rectangle(self._get_draw_rect_coords(source, diagonal_len), fill='#00FF00', activeoutline='red')
+            self.container.drawing_to_internal_data_mapping[this_id] = source
+
+        for receiver in self.container.room.get_receivers():
+            this_id = self.create_rectangle(self._get_draw_rect_coords(receiver, diagonal_len), fill='#FF0000', activeoutline='red')
+            self.container.drawing_to_internal_data_mapping[this_id] = receiver
+
+        for reflector in self.container.room.get_reflectors():
+            this_id = self.create_line(self._get_draw_line_coords(reflector), fill="purple", width=5, activefill = 'red')
+            self.container.drawing_to_internal_data_mapping[this_id] = reflector
+        
+        rays_list = self.container.room.get_rays()
+        for ray in rays_list:
+            self._draw_rays(rays_list)
+
+    
+    def _get_draw_rect_coords(self, obj, diagonal_len):
+        """
+        returns the scaled coordinates for the center of a rectangle, to be drawn on the canvas
+        """
+        x, y = obj.get_coords()
+        x, y = (el*self.container.pixel_per_foot_scale for el in (x, y))
+        return (x-diagonal_len, y-diagonal_len, x+diagonal_len, y+diagonal_len)
+
+    def _get_draw_line_coords(self, obj):
+        """
+        returns the scaled coordinates for each end of a line as a tuple, to be drawn on the canvas
+        """
+        x0, y0 = obj.get_start_coords()
+        x1, y1 = obj.get_end_coords()
+        x0, y0, x1, y1 = (el*self.container.pixel_per_foot_scale for el in (x0, y0, x1, y1))
+        return (x0, y0, x1, y1)
+    
+    def _draw_rays(self, rays_list):
+        '''first removes all old rays on the screen, then draws new rays from Ray.rays list'''
+        for key in self.container.drawing_to_internal_data_mapping:
+            if isinstance(self.container.drawing_to_internal_data_mapping[key], Ray):
+                self.delete(key)
+        color = []
+        for idx in range(0, len(rays_list), 6):
+            if len(color) == 0:
+                color = ["yellow", "orange", "blue", "black", "red", "cyan", "magenta", "green"]
+            cur_color = color.pop()
+            for ray_num in range(6):
+                this_ray = rays_list[ray_num+idx]
+                this_id = self.create_line(self._get_draw_line_coords(this_ray), fill=cur_color, width=3)
+                self.container.drawing_to_internal_data_mapping[this_id] = this_ray
+
+    def _draw_image(self):
         pass
 
 
@@ -30,6 +86,7 @@ class FileManagementButtonFrame(tk.LabelFrame):
     """
     def __init__(self, container):
         super().__init__(container, text="File Management")
+        self.container = container
         self._create_widgits()
 
     def _create_widgits(self):
@@ -53,6 +110,7 @@ class DrawingElementsButtonsFrame(tk.LabelFrame):
     """
     def __init__(self, container):
         super().__init__(container, text="Draw Tools")
+        self.container = container
         self._create_widgits()
 
     def _create_widgits(self):
@@ -86,6 +144,7 @@ class DisplacingElementsButtonsFrame(tk.LabelFrame):
     """
     def __init__(self, container):
         super().__init__(container, text='Move Tools')
+        self.container = container
         self._create_widgits()
 
     def _create_widgits(self):
@@ -115,6 +174,7 @@ class RotatingElementsButtonsFrame(tk.LabelFrame):
     """
     def __init__(self, container):
         super().__init__(container, text='Rotate Tools')
+        self.container = container
         self._create_widgits()
 
     def _create_widgits(self):
@@ -146,6 +206,7 @@ class UpdateStepMoveRotateButtonsFrame(tk.LabelFrame):
     """
     def __init__(self, container):
         super().__init__(container, text='Parameters')
+        self.container = container
         self._create_widgits()
 
     def _create_widgits(self):
@@ -173,6 +234,7 @@ class ButtonsFrameArea(tk.Frame):
     """
     def __init__(self, container):
         super().__init__(container)
+        self.container = container
         self._create_widgets()
     
     def _create_widgets(self):
@@ -212,9 +274,10 @@ class App(tk.Tk):
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=3)
 
-        self._create_widgits()
-
+        self.drawing_to_internal_data_mapping = dict()
+        self.pixel_per_foot_scale = 16  # pixel per foot 
         self._load_default_room()
+        self._create_widgits()
 
     def _create_widgits(self):
         """ initializes the buttons and drawings area widgets """
@@ -230,10 +293,12 @@ class App(tk.Tk):
         """ initializes a default room """
         self.room = Room(100, 30)
         self.room.add_source((5, 25))
-        self.room.add_reflector((45, 25), (55, 30))
+        self.room.add_reflector((45, 5), (55, 8))
         self.room.add_receiver((95, 25))
+        
+        self.test_var = "hellohellohello"
+        # self.canvas = tk.Canvas(width=self.room.get_length(), height=self.room.get_height(), cursor="cross")
 
-        self.canvas = tk.Canvas(width=self.room.get_length(), height=self.room.get_height(), cursor="cross")
 
 
 if __name__ == '__main__':

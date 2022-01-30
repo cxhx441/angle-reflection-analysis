@@ -7,7 +7,7 @@ class Room:
         self._height = height
 
         self._sources = set()
-        self._rays = set()
+        self._rays = list()
         self._reflectors = set()
         self._receivers = set()
 
@@ -23,17 +23,18 @@ class Room:
 
     # generate rays
     def re_generate_rays(self):
+        self._rays.clear()
         for source in self._sources:
             for reflector in self._reflectors:
                 # create rays from source to reflector
-                self._rays.add(Ray(source.get_coords(), reflector.get_start_coords()))
-                self._rays.add(Ray(source.get_coords(), reflector.get_center_coords()))
-                self._rays.add(Ray(source.get_coords(), reflector.get_end_coords()))
+                self._rays.append(Ray(source.get_coords(), reflector.get_start_coords()))
+                self._rays.append(Ray(source.get_coords(), reflector.get_center_coords()))
+                self._rays.append(Ray(source.get_coords(), reflector.get_end_coords()))
 
                 # create rays from reflector to room edge
                 rays_thru_reflector = self._get_reflected_rays_helper(source, reflector)
                 for ray in rays_thru_reflector:
-                    self._rays.add(ray)
+                    self._rays.append(ray)
 
     def _get_reflected_rays_helper(self, source: Source, reflector: Reflector):
         """
@@ -48,6 +49,10 @@ class Room:
         reflector_ray_through_start = ray_temp.copy()
         reflector_ray_through_center = ray_temp.copy()
         reflector_ray_through_end = ray_temp.copy()
+
+        reflector_ray_through_start.set_end_coords(reflector.get_start_coords())
+        reflector_ray_through_center.set_end_coords(reflector.get_center_coords())
+        reflector_ray_through_end.set_end_coords(reflector.get_end_coords())
 
         reflector_ray_through_start.move(reflector.get_start_coords())
         reflector_ray_through_center.move(reflector.get_center_coords())
@@ -70,6 +75,7 @@ class Room:
         return self._sources
 
     def get_rays(self):
+        self.re_generate_rays()
         return self._rays
 
     def get_reflectors(self):

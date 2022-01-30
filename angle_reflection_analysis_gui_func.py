@@ -17,6 +17,7 @@ import tkinter
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 import pickle
 
+""" USED """
 def get_draw_line_coords(obj):
     '''returns the scaled coordinates for each end of a line as a tuple, to be drawn on the canvas'''
     x0, y0 = obj.get_start_coords()
@@ -73,6 +74,7 @@ def rotate_tkinter_line(current_coords, pivot=None, angle=None):
 
     return (x0, x1, y0, y1)
 
+""" USED """
 def get_draw_rect_coords(obj, diagonal_len):
     '''returns the scaled coordinates for the center of a rectangle, to be drawn on the canvas'''
     x, y = obj.get_coords()
@@ -127,7 +129,7 @@ def update_reflected_rays():
             # that is new start point of reflected line.
 
             # return (ray_2_start, ray_2_center, ray_2_end, reflect_ray_2_start, reflect_ray_2_center, reflect_ray_2_end)
-
+""" USED """
 def draw_rays():
     '''first removes all old rays on the screen, then draws new rays from Ray.rays list'''
     for key in drawing_to_internal_data_mapping:
