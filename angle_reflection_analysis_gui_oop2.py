@@ -19,17 +19,20 @@ class DrawingArea(tk.Canvas):
         self._draw_room()
 
     def _draw_room(self):
+        self.delete("all")
+        self.container.drawing_to_internal_data_mapping.clear()
+        self.container.current_item_selected = None
+        # self.container.room.set_image(None)
 
         self._draw_image()
 
-        diagonal_len = 20
-        print(self.container.test_var)
+        rect_diagonal_len = 20
         for source in self.container.room.get_sources():
-            this_id = self.create_rectangle(self._get_draw_rect_coords(source, diagonal_len), fill='#00FF00', activeoutline='red')
+            this_id = self.create_rectangle(self._get_draw_rect_coords(source, rect_diagonal_len), fill='#00FF00', activeoutline='red')
             self.container.drawing_to_internal_data_mapping[this_id] = source
 
         for receiver in self.container.room.get_receivers():
-            this_id = self.create_rectangle(self._get_draw_rect_coords(receiver, diagonal_len), fill='#FF0000', activeoutline='red')
+            this_id = self.create_rectangle(self._get_draw_rect_coords(receiver, rect_diagonal_len), fill='#FF0000', activeoutline='red')
             self.container.drawing_to_internal_data_mapping[this_id] = receiver
 
         for reflector in self.container.room.get_reflectors():
@@ -37,8 +40,8 @@ class DrawingArea(tk.Canvas):
             self.container.drawing_to_internal_data_mapping[this_id] = reflector
         
         rays_list = self.container.room.get_rays()
-        for ray in rays_list:
-            self._draw_rays(rays_list)
+
+        self._draw_rays(rays_list)
 
     
     def _get_draw_rect_coords(self, obj, diagonal_len):
@@ -74,6 +77,13 @@ class DrawingArea(tk.Canvas):
                 self.container.drawing_to_internal_data_mapping[this_id] = this_ray
 
     def _draw_image(self):
+        if self.container.room.get_image() == None:
+            self.create_rectangle(
+                0, 
+                0, 
+                self.container.room.get_length() * self.container.pixel_per_foot_scale,
+                self.container.room.get_height() * self.container.pixel_per_foot_scale
+            )
         pass
 
 
@@ -276,6 +286,8 @@ class App(tk.Tk):
 
         self.drawing_to_internal_data_mapping = dict()
         self.pixel_per_foot_scale = 16  # pixel per foot 
+        self.current_item_selected = None
+
         self._load_default_room()
         self._create_widgits()
 
@@ -287,18 +299,17 @@ class App(tk.Tk):
 
         # place frames on grid
         drawing_area.grid(column=1, row=0, sticky="NSEW", padx=5, pady=5)  # TODO is rowspan the right way to do this? 
+        # drawing_area.configure(width=int(self.room.get_length*self.pixel_per_foot_scale), height=int(self.room.get_height*self.pixel_per_foot_scale))
+        drawing_area.config(width=500, height=500, )
         buttons_area.grid(column=0, row=0, sticky="ew", padx=5, pady=5)  # TODO is rowspan the right way to do this? 
     
     def _load_default_room(self):
         """ initializes a default room """
         self.room = Room(100, 30)
         self.room.add_source((5, 25))
-        self.room.add_reflector((45, 5), (55, 8))
+        self.room.add_reflector((45, 5), (55, 5.01))
+        self.room.add_reflector((25, 5), (35, 3))
         self.room.add_receiver((95, 25))
-        
-        self.test_var = "hellohellohello"
-        # self.canvas = tk.Canvas(width=self.room.get_length(), height=self.room.get_height(), cursor="cross")
-
 
 
 if __name__ == '__main__':
