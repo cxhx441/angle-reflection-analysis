@@ -10,12 +10,12 @@ TODO allow fractional step movements
 TODO add labels for angle/position of each reflector
 '''
 
-from geometric_elements import Reflector, Ray, Receiver, Source
-from PIL import Image, ImageDraw, ImageTk
 import math
 import tkinter
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 import pickle
+from PIL import Image, ImageDraw, ImageTk
+from geometric_elements import Reflector, Ray, Receiver, Source
 
 def get_draw_line_coords(obj):
     '''returns the scaled coordinates for each end of a line as a tuple, to be drawn on the canvas'''
