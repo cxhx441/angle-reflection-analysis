@@ -38,6 +38,7 @@ class Line():
         return ((self.x0 + self.x1)/2, (self.y0 + self.y1)/2)
 
     def get_angle(self):
+        """ return angle in radians """
         return math.atan2(self.get_delta_x(), self.get_delta_y())
 
     def get_slope(self):
