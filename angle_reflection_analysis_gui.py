@@ -32,6 +32,7 @@ def rotate_tkinter_line(current_coords, pivot=None, angle=None):
     new_x_mid, new_y_mid = ((new_x0 + new_x1)/2, (new_y0 + new_y1)/2)
 
     #shift the line to the origin
+    trans_x0 = trans_x1 = trans_y0 = trans_y1 = 0
     if pivot == (new_x0, new_y0) or pivot == None: # TODO could probably also be handled as default parameter
         trans_x0 = new_x0 - new_x0
         trans_x1 = new_x1 - new_x0
@@ -463,6 +464,7 @@ def draw_image(): # TODO clean this up
                 # canvas.create_image(image_display_width/2, image_display_height/2, tag="base_drawing", image=tk_image)
                 base_layer = canvas.create_image(0, 0, anchor='nw', tag="base_drawing", image=tk_image)
         except FileNotFoundError:
+            temp_filepath = ''
             if '/' in image_filepaths[0]: # mac paths
                 temp_filepath = image_filepaths[0].split('/')[-1]
             elif '\\' in image_filepaths[0]: # windows paths
