@@ -14,7 +14,7 @@ import math
 import tkinter
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 import pickle
-from PIL import Image, ImageDraw, ImageTk
+from PIL import Image, ImageTk
 from geometric_elements import Reflector, Ray, Receiver, Source
 
 def get_draw_line_coords(obj):
