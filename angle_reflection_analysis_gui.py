@@ -457,7 +457,7 @@ def draw_image(): # TODO clean this up
         try:
             with Image.open(image_filepaths[0]) as image:
                 image_width, image_height = (int(x/image_scale) for x in image.size)
-                image_resize = image.resize((image_width, image_height), Image.LANCZOS)
+                image_resize = image.resize((image_width, image_height), Image.Resampling.LANCZOS)
                 tk_image = ImageTk.PhotoImage(image_resize)
                 # image_display_width = image_width
                 # image_display_height = image_height
@@ -472,7 +472,7 @@ def draw_image(): # TODO clean this up
 
             with Image.open(temp_filepath) as image:
                 image_width, image_height = (int(x/3) for x in image.size)
-                image_resize = image.resize((image_width, image_height), Image.LANCZOS)
+                image_resize = image.resize((image_width, image_height), Image.Resampling.LANCZOS)
                 tk_image = ImageTk.PhotoImage(image_resize)
                 # image_display_width = image_width
                 # image_display_height = image_height
