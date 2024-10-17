@@ -181,7 +181,7 @@ def save_file():
     data['receivers'] = Receiver.receivers
     if len(image_filepaths) != 0:
         data['image_filepath'] = image_filepaths[0]
-        # data['image'] = 
+        # data['image'] =
     with open(filepath, 'wb') as output_file:
         pickle.dump(data, output_file)
 
@@ -433,7 +433,8 @@ def delete_active_item():
 
 def import_image():
     '''handles importing an image to the background'''
-    filepath = askopenfilename(filetypes=[("jpeg", "*.jpg"), ("bitmap", "*.bmp"), ("png", "*.png")])
+    filepath = askopenfilename(
+        filetypes=[("png", "*.png"), ("jpeg", "*.jpg"), ("bitmap", "*.bmp")])
     if not filepath:
         return
     image_filepaths.clear()
