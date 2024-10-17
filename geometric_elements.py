@@ -20,10 +20,10 @@ class Line():
         (self.x1, self.y1) = new_end
 
     def get_delta_x(self):
-        return abs(self.x1 - self.x0)
+        return self.x1 - self.x0
 
     def get_delta_y(self):
-        return abs(self.y1 - self.y0)
+        return self.y1 - self.y0
 
     def get_slope_intercept_form(self):
         x, y = self.get_start_coords()
@@ -32,7 +32,7 @@ class Line():
         return (m, b)
 
     def get_length(self):
-        return (self.get_delta_x(), self.get_delta_y())
+        return math.sqrt(self.get_delta_x()**2, self.get_delta_y()**2)
 
     def get_center_coords(self):
         return ((self.x0 + self.x1)/2, (self.y0 + self.y1)/2)
