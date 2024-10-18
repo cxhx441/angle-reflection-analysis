@@ -87,8 +87,6 @@ class Line():
             self.y0 += new_y_mid
             self.y1 += new_y_mid
 
-        print(f'Angle: {round(math.degrees(self.get_angle()), 2)} degrees')
-
     def move(self, destination_coord):
         movement_coords = (destination_coord[0] - self.get_start_coords()[0], destination_coord[1] - self.get_start_coords()[1])
         new_start_coords = (self.get_start_coords()[0] + movement_coords[0], self.get_start_coords()[1] + movement_coords[1])
